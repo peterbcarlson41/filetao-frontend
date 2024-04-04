@@ -11,15 +11,20 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const user = localStorage.getItem("userToken")
-      ? { isLoggedIn: true }
-      : null;
+    const user = localStorage.getItem("token") ? { isLoggedIn: true } : null;
     setCurrentUser(user);
     setIsLoading(false);
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setCurrentUser(null);
+  };
+
   const value = {
     currentUser,
+    setCurrentUser,
+    logout,
     isLoading,
   };
 

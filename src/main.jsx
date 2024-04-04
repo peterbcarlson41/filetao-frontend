@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound/index";
 import Upload from "./pages/Upload/index";
 import Navbar from "./components/common/Navbar";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Retrieve from "./components/common/FileRetrieve";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -22,6 +23,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="register" element={<Register />} />
           <Route element={<ProtectedRoute />}>
             <Route path="upload" element={<Upload />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="retrieve" element={<Retrieve />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

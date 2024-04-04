@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom"; // for programmatically navigating
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../components/auth/AuthContext.jsx";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,40 +20,32 @@ export default function RegisterForm() {
   const navigate = useNavigate(); // useNavigate hook for navigation
   const { setCurrentUser } = useContext(AuthContext); // Use AuthContext to access the setCurrentUser function
 
-  const obtainAccessToken = async (username, password) => {
-    const params = new URLSearchParams();
-    params.append("grant_type", "password");
-    params.append("username", username);
-    params.append("password", password);
-
+  // This function is now repurposed to handle user registration
+  const registerUser = async (username, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/token", {
+      const response = await fetch("http://127.0.0.1:8000/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
         },
-        body: params.toString(),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.access_token); // Store the token
-        setCurrentUser({ isLoggedIn: true }); // Update the authentication context
-        navigate("/dashboard"); // Redirect to a protected route
+        navigate("/login");
       } else {
-        throw new Error(
-          data.error_description || "Failed to obtain access token"
-        );
+        throw new Error(data.detail || "Registration failed");
       }
     } catch (error) {
-      setError("Register failed: " + error.message);
+      setError("Registration failed: " + error.message);
     }
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
-    setError(""); // Clear any existing error messages
-    await obtainAccessToken(username, password);
+    event.preventDefault();
+    setError("");
+    await registerUser(username, password);
   };
 
   return (
@@ -92,8 +84,8 @@ export default function RegisterForm() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
-              Sign in
-            </Button>
+              Register
+            </Button>{" "}
           </CardFooter>
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </form>

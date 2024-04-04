@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom"; // for programmatically navigating
-import { AuthContext } from "../../components/auth/AuthContext.jsx";
+import { useAuth } from "../../components/auth/AuthContext.jsx";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,8 +17,8 @@ export default function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // useNavigate hook for navigation
-  const { setCurrentUser } = useContext(AuthContext); // Use AuthContext to access the setCurrentUser function
+  const navigate = useNavigate();
+  const { setCurrentUser } = useAuth();
 
   const obtainAccessToken = async (username, password) => {
     const params = new URLSearchParams();
@@ -37,9 +37,9 @@ export default function LoginForm() {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.access_token); // Store the token
-        setCurrentUser({ isLoggedIn: true }); // Update the authentication context
-        navigate("/dashboard"); // Redirect to a protected route
+        localStorage.setItem("token", data.access_token);
+        setCurrentUser({ isLoggedIn: true });
+        navigate("/upload");
       } else {
         throw new Error(
           data.error_description || "Failed to obtain access token"
@@ -51,8 +51,8 @@ export default function LoginForm() {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
-    setError(""); // Clear any existing error messages
+    event.preventDefault();
+    setError("");
     await obtainAccessToken(username, password);
   };
 
