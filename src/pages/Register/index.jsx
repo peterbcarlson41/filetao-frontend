@@ -12,15 +12,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Error } from "@/components/common/Error"; // Import Error component
 
 export default function RegisterForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // useNavigate hook for navigation
-  const { setCurrentUser } = useContext(AuthContext); // Use AuthContext to access the setCurrentUser function
+  const navigate = useNavigate();
+  const { setCurrentUser } = useContext(AuthContext);
 
-  // This function is now repurposed to handle user registration
   const registerUser = async (username, password) => {
     try {
       const response = await fetch("http://127.0.0.1:8000/register", {
@@ -32,13 +32,16 @@ export default function RegisterForm() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
         navigate("/login");
       } else {
-        throw new Error(data.detail || "Registration failed");
+        setError(`Registration failed: ${data.detail || "Please try again."}`);
       }
     } catch (error) {
-      setError("Registration failed: " + error.message);
+      setError(
+        `Registration failed: ${error.message || "Unexpected error occurred."}`
+      );
     }
   };
 
@@ -81,13 +84,13 @@ export default function RegisterForm() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {error && <Error message={error} />}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
               Register
-            </Button>{" "}
+            </Button>
           </CardFooter>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </form>
       </Card>
     </div>

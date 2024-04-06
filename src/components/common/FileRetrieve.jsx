@@ -1,22 +1,28 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { CardHeader, CardContent, Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/common/Spinner";
+import { Error } from "@/components/common/Error";
+import { Success } from "@/components/common/Success";
 
 export default function Retrieve() {
   const [filename, setFilename] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // New loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleRetrieveFile = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
     if (!filename.trim()) {
-      alert("Filename cannot be empty.");
+      setErrorMessage("Filename cannot be empty.");
       return;
     }
 
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     const accessToken = localStorage.getItem("token");
     const apiUrl = `http://127.0.0.1:8000/retrieve/${encodeURIComponent(
       filename
@@ -39,18 +45,19 @@ export default function Retrieve() {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        setSuccessMessage("File retrieved successfully.");
       } else {
-        alert(
-          "Failed to retrieve the file. Please check the filename and try again."
-        );
+        const errorText =
+          (await response.json()).detail || "Failed to retrieve the file.";
+        setErrorMessage(errorText);
       }
     } catch (error) {
       console.error("Error retrieving file:", error);
-      alert(
+      setErrorMessage(
         "Error retrieving file. Please check the console for more details."
       );
     } finally {
-      setIsLoading(false); // Stop loading regardless of outcome
+      setIsLoading(false);
     }
   };
 
@@ -72,16 +79,17 @@ export default function Retrieve() {
                     placeholder="Enter file name..."
                     value={filename}
                     onChange={(e) => setFilename(e.target.value)}
-                    className="pl-3 pr-10 py-2 w-full" // Adjust padding and styles as needed
+                    className="pl-3 pr-10 py-2 w-full"
                   />
                   {isLoading && (
-                    // Absolute position the spinner in the center of the input
                     <div className="absolute inset-y-0 right-0 flex items-center justify-center pr-3">
                       <LoadingSpinner className="h-5 w-5 text-blue-500" />
                     </div>
                   )}
                 </div>
               </div>
+              {errorMessage && <Error message={errorMessage} />}
+              {successMessage && <Success message={successMessage} />}
               <Button type="submit">Retrieve File</Button>
             </div>
           </CardContent>

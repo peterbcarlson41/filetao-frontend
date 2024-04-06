@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom"; // for programmatically navigating
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/auth/AuthContext.jsx";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Error } from "@/components/common/Error"; // Import Error component
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -46,13 +47,13 @@ export default function LoginForm() {
         );
       }
     } catch (error) {
-      setError("Login failed: " + error.message);
+      setError(error.message || "Login failed."); // Set only error message to display it in the Error component
     }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError("");
+    setError(""); // Reset error message
     await obtainAccessToken(username, password);
   };
 
@@ -89,13 +90,13 @@ export default function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {error && <Error message={error} />}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
               Sign in
             </Button>
           </CardFooter>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </form>
       </Card>
     </div>
