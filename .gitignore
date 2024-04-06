@@ -4,6 +4,8 @@
 # Production build directory
 /dist
 
+.DS_Store
+
 # Environment variables
 .env
 .env.local
