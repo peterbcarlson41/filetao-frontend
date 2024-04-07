@@ -47,7 +47,7 @@ export default function LoginForm() {
         );
       }
     } catch (error) {
-      setError(error.message || "Login failed."); // Set only error message to display it in the Error component
+      setError(error.message || "Login failed.");
     }
   };
 
