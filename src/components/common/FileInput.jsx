@@ -64,44 +64,42 @@ export default function FileInput() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Card className="max-w-sm w-full">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <div>File Upload</div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="space-y-2 relative">
-                <Label htmlFor="file">Choose Files</Label>
-                <div className="flex items-center relative">
-                  <Input
-                    id="file"
-                    type="file"
-                    multiple
-                    onChange={handleFileChange}
-                    className="pl-3 pr-10 py-2 w-full text-gray-500"
-                  />
-                  {isUploading && (
-                    <div className="absolute inset-y-0 right-0 flex items-center justify-center pr-3">
-                      <LoadingSpinner className="h-5 w-5 text-blue-500" />
-                    </div>
-                  )}
-                </div>
+    <Card className="max-w-sm w-full">
+      <form onSubmit={handleSubmit}>
+        <CardHeader>
+          <div>File Upload</div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div className="space-y-2 relative">
+              <Label htmlFor="file">Choose Files</Label>
+              <div className="flex items-center relative">
+                <Input
+                  id="file"
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="pl-3 pr-10 py-2 w-full text-gray-500"
+                />
+                {isUploading && (
+                  <div className="absolute inset-y-0 right-0 flex items-center justify-center pr-3">
+                    <LoadingSpinner className="h-5 w-5 text-blue-500" />
+                  </div>
+                )}
               </div>
-              {errorMessage && <Error message={errorMessage} />}
-              {successMessage && <Success message={successMessage} />}
-              <Button
-                type="submit"
-                className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-                disabled={isUploading}
-              >
-                Upload Files
-              </Button>
             </div>
-          </CardContent>
-        </form>
-      </Card>
-    </div>
+            {errorMessage && <Error message={errorMessage} />}
+            {successMessage && <Success message={successMessage} />}
+            <Button
+              type="submit"
+              className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+              disabled={isUploading}
+            >
+              Upload Files
+            </Button>
+          </div>
+        </CardContent>
+      </form>
+    </Card>
   );
 }

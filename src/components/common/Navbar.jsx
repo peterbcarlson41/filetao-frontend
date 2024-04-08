@@ -23,21 +23,9 @@ export default function Navbar() {
             <>
               <a
                 className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                href="/upload"
+                href="/dashboard"
               >
-                Upload
-              </a>
-              <a
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                href="/retrieve"
-              >
-                Retrieve
-              </a>
-              <a
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                href="/myfiles"
-              >
-                My Files
+                Dashboard
               </a>
             </>
           )}

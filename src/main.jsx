@@ -11,7 +11,7 @@ import Upload from "./pages/Upload/index";
 import Navbar from "./components/common/Navbar";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Retrieve from "./components/common/FileRetrieve";
-import MyFiles from "./pages/MyFiles/index";
+import MyFiles from "./pages/Dashboard/index";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -29,7 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="retrieve" element={<Retrieve />} />
           </Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="myfiles" element={<MyFiles />} />
+            <Route path="dashboard" element={<MyFiles />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
