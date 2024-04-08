@@ -1,79 +1,110 @@
+import React, { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import FileTableItem from "@/components/common/FileTableItem";
 import {
   Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
   TableHeader,
   TableRow,
+  TableHead,
+  TableBody,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { PlusCircle } from "lucide-react";
-
-import FileTableItem from "@/components/common/FileTableItem";
-import FileInput from "@/components/common/FileInput";
-
-import React, { useEffect, useState } from "react";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 
 const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
-  const [showUpload, setShowUpload] = useState(false);
 
+  // Define a function to fetch files. Using useCallback to memoize the function.
+  const fetchFiles = useCallback(async () => {
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      console.error("No auth token found");
+      return;
+    }
+
+    const response = await fetch("http://127.0.0.1:8000/user_data", {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const filesArray = Object.entries(data.file_metadata).map(
+        ([key, value]) => {
+          return { id: key, ...JSON.parse(value) };
+        }
+      );
+      setFiles(filesArray);
+    } else {
+      console.error("Failed to fetch files");
+    }
+  }, []);
+
+  // Use useEffect to call fetchFiles on component mount.
   useEffect(() => {
-    const fetchData = async () => {
-      const authToken = localStorage.getItem("token");
-      if (!authToken) {
-        console.error("No auth token found");
-        return;
-      }
+    fetchFiles();
+  }, [fetchFiles]);
 
-      const response = await fetch("http://127.0.0.1:8000/user_data", {
+  const handleFileUpload = async (formData) => {
+    const accessToken = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
+        body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const filesArray = Object.entries(data.file_metadata).map(
-          ([key, value]) => {
-            return { id: key, ...JSON.parse(value) };
-          }
-        );
-
-        console.log(filesArray);
-
-        setFiles(filesArray);
-      } else {
-        console.error("Failed to fetch files");
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
-    };
 
-    fetchData();
-  }, []);
+      await response.json();
+      alert("Files uploaded successfully.");
+      fetchFiles(); // Refetch the files to update the table
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert(error.message || "Upload failed.");
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      alert("Please select files to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append("files", file);
+    });
+
+    await handleFileUpload(formData);
+  };
+
   return (
     <div className="mt-20">
       <div className="flex flex-col p-10 items-start">
         <div className="pb-5">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button className="gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span>Upload File</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-4">
-              <FileInput />
-            </PopoverContent>
-          </Popover>
+          <Button
+            onClick={() => document.getElementById("fileInput").click()}
+            className="gap-1"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span>Upload File</span>
+          </Button>
+          <input
+            id="fileInput"
+            type="file"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+            multiple
+          />
         </div>
         <Table className="border">
           <TableHeader>
