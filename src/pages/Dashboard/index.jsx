@@ -10,12 +10,22 @@ import {
   TableBody,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 
 const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterBy, setFilterBy] = useState("name");
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -46,17 +56,34 @@ const FilesDashboard = () => {
   // Use useEffect to call fetchFiles on component mount.
   useEffect(() => {
     fetchFiles();
-  }, [fetchFiles]);
+  }, [fetchFiles, filterBy]);
 
   // New function to update the search term state
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
 
-  // Filter the files based on the search term
+  // Function to sort files based on selected filter
+  const sortFiles = (files, filterBy) => {
+    switch (filterBy) {
+      case "name":
+        return [...files].sort((a, b) => a.filename.localeCompare(b.filename));
+      case "size":
+        return [...files].sort((a, b) => a.size - b.size);
+      case "date":
+        return [...files].sort(
+          (a, b) => new Date(b.uploaded) - new Date(a.uploaded)
+        );
+      default:
+        return files;
+    }
+  };
+
   const filteredFiles = files.filter((file) =>
     file.filename.toLowerCase().includes(searchTerm)
   );
+
+  const sortedFiles = sortFiles(filteredFiles, filterBy);
 
   const handleFileUpload = async (formData) => {
     const accessToken = localStorage.getItem("token");
@@ -116,6 +143,19 @@ const FilesDashboard = () => {
             style={{ display: "none" }}
             multiple
           />
+          <Select value={filterBy} onValueChange={setFilterBy}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filer By..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Options</SelectLabel>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="size">Size</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <div className="relative ml-auto flex-1 md:grow-0">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -139,11 +179,11 @@ const FilesDashboard = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredFiles.map((file) => (
+            {sortedFiles.map((file) => (
               <FileTableItem
                 key={file.id}
                 filename={file.filename}
-                size={formatBytes(file.size)}
+                size={formatBytes(file.size).string}
                 uploaded={formatDate(file.uploaded)}
                 extension={file.ext}
               />
