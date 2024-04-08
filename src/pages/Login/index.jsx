@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Error } from "@/components/common/Error"; // Import Error component
+import { Error } from "@/components/common/Error";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -40,7 +40,7 @@ export default function LoginForm() {
       if (response.ok) {
         localStorage.setItem("token", data.access_token);
         setCurrentUser({ isLoggedIn: true });
-        navigate("/upload");
+        navigate("/dashboard");
       } else {
         throw new Error(
           data.error_description || "Failed to obtain access token"
@@ -53,7 +53,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError(""); // Reset error message
+    setError("");
     await obtainAccessToken(username, password);
   };
 

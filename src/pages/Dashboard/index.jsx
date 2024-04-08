@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import FileTableItem from "@/components/common/FileTableItem";
 import {
   Table,
@@ -9,13 +9,14 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 
 const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Define a function to fetch files. Using useCallback to memoize the function.
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
     if (!authToken) {
@@ -46,6 +47,16 @@ const FilesDashboard = () => {
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
+
+  // New function to update the search term state
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  // Filter the files based on the search term
+  const filteredFiles = files.filter((file) =>
+    file.filename.toLowerCase().includes(searchTerm)
+  );
 
   const handleFileUpload = async (formData) => {
     const accessToken = localStorage.getItem("token");
@@ -89,8 +100,8 @@ const FilesDashboard = () => {
 
   return (
     <div className="mt-20">
-      <div className="flex flex-col p-10 items-start">
-        <div className="pb-5">
+      <div className="p-10">
+        <div className="flex flex-row justify-between gap-5 pb-5">
           <Button
             onClick={() => document.getElementById("fileInput").click()}
             className="gap-1"
@@ -105,6 +116,15 @@ const FilesDashboard = () => {
             style={{ display: "none" }}
             multiple
           />
+          <div className="relative ml-auto flex-1 md:grow-0">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search..."
+              onChange={handleSearchChange}
+              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+            />
+          </div>
         </div>
         <Table className="border">
           <TableHeader>
@@ -119,7 +139,7 @@ const FilesDashboard = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {files.map((file) => (
+            {filteredFiles.map((file) => (
               <FileTableItem
                 key={file.id}
                 filename={file.filename}
