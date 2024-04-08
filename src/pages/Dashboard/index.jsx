@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle, Search, ListFilter } from "lucide-react";
 import FileTableItem from "@/components/common/FileTableItem";
 import {
   Table,
@@ -19,6 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 
@@ -128,13 +137,15 @@ const FilesDashboard = () => {
   return (
     <div className="mt-20">
       <div className="p-10">
-        <div className="flex flex-row justify-between gap-5 pb-5">
+        <div className="flex flex-row justify-between items-center gap-5 pb-5">
           <Button
             onClick={() => document.getElementById("fileInput").click()}
             className="gap-1"
           >
             <PlusCircle className="h-3.5 w-3.5" />
-            <span>Upload File</span>
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Upload File
+            </span>
           </Button>
           <input
             id="fileInput"
@@ -143,19 +154,7 @@ const FilesDashboard = () => {
             style={{ display: "none" }}
             multiple
           />
-          <Select value={filterBy} onValueChange={setFilterBy}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filer By..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Options</SelectLabel>
-                <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="date">Date</SelectItem>
-                <SelectItem value="size">Size</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+
           <div className="relative ml-auto flex-1 md:grow-0">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -165,6 +164,30 @@ const FilesDashboard = () => {
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
             />
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1">
+                <ListFilter className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Filter
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => setFilterBy("name")}>
+                Name
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setFilterBy("date")}>
+                Date
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setFilterBy("size")}>
+                Size
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Table className="border">
           <TableHeader>
