@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -35,6 +35,8 @@ const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBy, setFilterBy] = useState("name");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -134,6 +136,20 @@ const FilesDashboard = () => {
     await handleFileUpload(formData);
   };
 
+  // Calculate total pages
+  const totalPages = Math.ceil(sortedFiles.length / itemsPerPage);
+
+  // Slice files for the current page
+  const currentFiles = sortedFiles.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Function to change page
+  const changePage = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <div className="mt-20">
       <div className="p-10">
@@ -170,12 +186,12 @@ const FilesDashboard = () => {
               <Button variant="outline" size="sm" className="gap-1">
                 <ListFilter className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Filter
+                  Sort
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setFilterBy("name")}>
                 Name
@@ -189,30 +205,62 @@ const FilesDashboard = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Table className="border">
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Size</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Last Modified Date
-              </TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedFiles.map((file) => (
-              <FileTableItem
-                key={file.id}
-                filename={file.filename}
-                size={formatBytes(file.size).string}
-                uploaded={formatDate(file.uploaded)}
-                extension={file.ext}
-              />
-            ))}
-          </TableBody>
-        </Table>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="hidden md:table-cell">Size</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Last Modified Date
+                </TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentFiles.map((file) => (
+                <FileTableItem
+                  key={file.id}
+                  filename={file.filename}
+                  size={formatBytes(file.size).string}
+                  uploaded={formatDate(file.uploaded)}
+                  extension={file.ext}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="py-5">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => changePage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                />
+              </PaginationItem>
+              {[...Array(totalPages).keys()].map((pageNumber) => (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    onClick={() => changePage(pageNumber + 1)}
+                    isActive={currentPage === pageNumber + 1}
+                  >
+                    {pageNumber + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    changePage(Math.min(totalPages, currentPage + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
     </div>
   );
