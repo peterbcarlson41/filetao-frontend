@@ -55,7 +55,7 @@ export default function RegisterForm() {
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen px-5">
         <Card className="w-full max-w-sm">
           <form onSubmit={handleSubmit}>
             <CardHeader>

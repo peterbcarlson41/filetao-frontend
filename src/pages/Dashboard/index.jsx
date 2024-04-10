@@ -12,14 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuContent,
@@ -30,6 +22,7 @@ import {
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 import LoadingPopup from "@/components/common/LoadingPopup";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -37,7 +30,7 @@ const FilesDashboard = () => {
   const [sortBy, setSortBy] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState({ active: false, message: "" });
-  const itemsPerPage = 7;
+  const itemsPerPage = 10;
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -140,28 +133,14 @@ const FilesDashboard = () => {
     await handleFileUpload(formData);
   };
 
-  // Calculate total pages
-  const totalPages = Math.ceil(sortedFiles.length / itemsPerPage);
-
-  // Slice files for the current page
-  const currentFiles = sortedFiles.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // Function to change page
-  const changePage = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
   const toggleLoading = ({ active, message = "" }) => {
     setIsLoading({ active, message });
   };
 
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <Navbar />
-      <div className="px-10 pt-20">
+      <div className="sm:px-10 px-2 pb-5 pt-20 flex flex-col flex-1 overflow-hidden">
         {isLoading.active && <LoadingPopup message={isLoading.message} />}
         <div className="flex flex-row justify-between items-center gap-5 pb-5">
           <Button
@@ -215,21 +194,21 @@ const FilesDashboard = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="rounded-md border">
+        <ScrollArea className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead className="hidden md:table-cell"></TableHead>
+                <TableHead className="">Name</TableHead>
                 <TableHead className="hidden md:table-cell">Size</TableHead>
                 <TableHead className="hidden md:table-cell">
                   Last Modified Date
                 </TableHead>
-                <TableHead></TableHead>
+                <TableHead className=""></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentFiles.map((file) => (
+              {sortedFiles.map((file) => (
                 <FileTableItem
                   key={file.id}
                   filename={file.filename}
@@ -241,37 +220,7 @@ const FilesDashboard = () => {
               ))}
             </TableBody>
           </Table>
-        </div>
-        <div className="py-5">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => changePage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                />
-              </PaginationItem>
-              {[...Array(totalPages).keys()].map((pageNumber) => (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    onClick={() => changePage(pageNumber + 1)}
-                    isActive={currentPage === pageNumber + 1}
-                  >
-                    {pageNumber + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    changePage(Math.min(totalPages, currentPage + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export default function Statistics() {
         // Extract filecount and storage from stats
         setNumberOfFiles(data.stats.filecount);
         // Convert storage to GB assuming the value is in bytes
-        setStorageUsed(formatBytes(data.stats.storage).value);
+        setStorageUsed(data.stats.storage);
         setStorageWithUnits(formatBytes(data.stats.storage).string);
       } catch (error) {
         console.error("An error occurred while fetching user data:", error);
@@ -57,7 +57,9 @@ export default function Statistics() {
     fetchUserData();
   }, []);
 
-  const storageTotal = 50;
+  //50gb in bytes
+  const storageTotal = 53687091200;
+  const storageTotalFormatted = formatBytes(storageTotal).string;
   const storagePercentage = (storageUsed / storageTotal) * 100;
 
   // Define your Tailwind colors
@@ -90,7 +92,7 @@ export default function Statistics() {
               />
             </div>
             <div className="text-center mt-4">
-              <div className="text-lg font-medium">{`${storageWithUnits} of ${storageTotal} GB used`}</div>
+              <div className="text-lg font-medium">{`${storageWithUnits} of ${storageTotalFormatted} used`}</div>
             </div>
           </CardContent>
           <div className="p-5 border-t">

@@ -21,7 +21,7 @@ const FileTableItem = ({
   const onDownloadClick = () => handleDownload(filename, extension);
 
   const handleDownload = async (filename, extension) => {
-    toggleLoading({ active: true, message: "Downloading" });
+    toggleLoading({ active: true, message: "Downloading files" });
     const token = localStorage.getItem("token");
     const apiUrl = `http://127.0.0.1:8000/retrieve/${encodeURIComponent(
       filename
@@ -51,21 +51,21 @@ const FileTableItem = ({
     } catch (error) {
       console.error("An error occurred during the file download.", error);
     } finally {
-      toggleLoading({ active: false, message: "" });
+      toggleLoading(false);
     }
   };
 
   return (
     <>
       <TableRow style={{ cursor: "pointer" }}>
-        <TableCell className="text-left">
+        <TableCell className="text-left hidden md:table-cell">
           <Checkbox />
         </TableCell>
         <TableCell className="text-left table-cell font-medium">
           {filename}
         </TableCell>
         <TableCell className="text-left hidden md:table-cell">{size}</TableCell>
-        <TableCell className="text-left hidden lg:table-cell">
+        <TableCell className="text-left hidden md:table-cell">
           {uploaded}
         </TableCell>
         <TableCell>
