@@ -11,7 +11,7 @@ export const LoadingSpinner = ({ className }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={classNames("animate-spin", className)} // Using `classNames` for dynamic class application
+    className={classNames("animate-spin", className)}
   >
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
   </svg>

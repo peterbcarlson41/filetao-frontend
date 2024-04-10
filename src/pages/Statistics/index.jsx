@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import Navbar from "@/components/common/navbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
   CardTitle,
@@ -65,41 +66,44 @@ export default function Statistics() {
   const trailColor = "#e5e7eb";
 
   return (
-    <div className="h-screen pt-20 p-10">
-      <Card className="w-full max-w-xs mx-auto bg-white shadow-md overflow-hidden">
-        <CardHeader className="flex justify-between items-center p-5 border-b">
-          <CardTitle>File Storage</CardTitle>
-          <CardDescription>{numberOfFiles} files stored</CardDescription>
-        </CardHeader>
-        <CardContent className="p-5">
-          <div className="w-40 h-40 mx-auto">
-            <CircularProgressbar
-              value={storagePercentage}
-              text={`${storagePercentage.toFixed(1)}%`}
-              styles={buildStyles({
-                pathColor: primaryColor,
-                textColor: primaryTextColor,
-                trailColor: trailColor,
-                textSize: "16px",
-                pathTransitionDuration: 0.5,
-                strokeLinecap: "round",
-              })}
-            />
+    <>
+      <Navbar />
+      <div className="h-screen flex justify-center items-center">
+        <Card className="w-full max-w-xs mx-auto bg-white shadow-md overflow-hidden">
+          <CardHeader className="flex justify-between items-center p-5 border-b">
+            <CardTitle>File Storage</CardTitle>
+            <CardDescription>{numberOfFiles} files stored</CardDescription>
+          </CardHeader>
+          <CardContent className="p-5">
+            <div className="w-40 h-40 mx-auto">
+              <CircularProgressbar
+                value={storagePercentage}
+                text={`${storagePercentage.toFixed(1)}%`}
+                styles={buildStyles({
+                  pathColor: primaryColor,
+                  textColor: primaryTextColor,
+                  trailColor: trailColor,
+                  textSize: "16px",
+                  pathTransitionDuration: 0.5,
+                  strokeLinecap: "round",
+                })}
+              />
+            </div>
+            <div className="text-center mt-4">
+              <div className="text-lg font-medium">{`${storageWithUnits} of ${storageTotal} GB used`}</div>
+            </div>
+          </CardContent>
+          <div className="p-5 border-t">
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => navigate("/dashboard")}
+            >
+              View Files
+            </Button>
           </div>
-          <div className="text-center mt-4">
-            <div className="text-lg font-medium">{`${storageWithUnits} of ${storageTotal} GB used`}</div>
-          </div>
-        </CardContent>
-        <div className="p-5 border-t">
-          <Button
-            size="sm"
-            className="w-full"
-            onClick={() => navigate("/dashboard")}
-          >
-            View Files
-          </Button>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 }

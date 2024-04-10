@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { PlusCircle, Search, ListFilter } from "lucide-react";
-import FileTableItem from "@/components/common/FileTableItem";
+import Navbar from "@/components/common/Navbar";
+import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -13,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/pagination";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuLabel,
@@ -30,13 +29,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
+import LoadingPopup from "@/components/common/LoadingPopup";
 
 const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterBy, setFilterBy] = useState("name");
+  const [sortBy, setSortBy] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [isLoading, setIsLoading] = useState({ active: false, message: "" });
+  const itemsPerPage = 7;
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -67,7 +68,7 @@ const FilesDashboard = () => {
   // Use useEffect to call fetchFiles on component mount.
   useEffect(() => {
     fetchFiles();
-  }, [fetchFiles, filterBy]);
+  }, [fetchFiles, sortBy]);
 
   // New function to update the search term state
   const handleSearchChange = (event) => {
@@ -75,8 +76,8 @@ const FilesDashboard = () => {
   };
 
   // Function to sort files based on selected filter
-  const sortFiles = (files, filterBy) => {
-    switch (filterBy) {
+  const sortFiles = (files, sortBy) => {
+    switch (sortBy) {
       case "name":
         return [...files].sort((a, b) => a.filename.localeCompare(b.filename));
       case "size":
@@ -94,9 +95,10 @@ const FilesDashboard = () => {
     file.filename.toLowerCase().includes(searchTerm)
   );
 
-  const sortedFiles = sortFiles(filteredFiles, filterBy);
+  const sortedFiles = sortFiles(filteredFiles, sortBy);
 
   const handleFileUpload = async (formData) => {
+    toggleLoading({ active: true, message: "Uploading" });
     const accessToken = localStorage.getItem("token");
 
     try {
@@ -118,6 +120,8 @@ const FilesDashboard = () => {
     } catch (error) {
       console.error("Upload failed:", error);
       alert(error.message || "Upload failed.");
+    } finally {
+      toggleLoading({ active: false, message: "" });
     }
   };
 
@@ -150,9 +154,15 @@ const FilesDashboard = () => {
     setCurrentPage(newPage);
   };
 
+  const toggleLoading = ({ active, message = "" }) => {
+    setIsLoading({ active, message });
+  };
+
   return (
-    <div className="mt-20">
-      <div className="p-10">
+    <div>
+      <Navbar />
+      <div className="px-10 pt-20">
+        {isLoading.active && <LoadingPopup message={isLoading.message} />}
         <div className="flex flex-row justify-between items-center gap-5 pb-5">
           <Button
             onClick={() => document.getElementById("fileInput").click()}
@@ -193,13 +203,13 @@ const FilesDashboard = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setFilterBy("name")}>
+              <DropdownMenuItem onSelect={() => setSortBy("name")}>
                 Name
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setFilterBy("date")}>
+              <DropdownMenuItem onSelect={() => setSortBy("date")}>
                 Date
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setFilterBy("size")}>
+              <DropdownMenuItem onSelect={() => setSortBy("size")}>
                 Size
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -226,6 +236,7 @@ const FilesDashboard = () => {
                   size={formatBytes(file.size).string}
                   uploaded={formatDate(file.uploaded)}
                   extension={file.ext}
+                  toggleLoading={toggleLoading}
                 />
               ))}
             </TableBody>

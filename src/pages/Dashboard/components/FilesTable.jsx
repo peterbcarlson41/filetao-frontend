@@ -1,4 +1,4 @@
-import FileTableItem from "@/components/common/FileTableItem";
+import FileTableItem from "./FileTableItem";
 import {
   Table,
   TableHeader,
@@ -6,6 +6,7 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
+import { formatBytes } from "@/utils/formatBytes";
 
 export const FilesTable = ({ files }) => {
   return (
