@@ -20,7 +20,7 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={`sticky top-0 z-10 shadow bg-white ${className}`}
+    className={`sticky top-0 z-10 shadow py-4 bg-white ${className}`}
     {...props}
   />
 ));

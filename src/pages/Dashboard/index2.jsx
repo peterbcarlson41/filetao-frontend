@@ -1,0 +1,306 @@
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Bell,
+  CircleUser,
+  Home,
+  LineChart,
+  Menu,
+  Package,
+  Package2,
+  Search,
+  ShoppingCart,
+  Users,
+} from "lucide-react";
+import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+import { formatBytes } from "@/utils/formatBytes";
+import { formatDate } from "@/utils/formatDate";
+
+export default function Dashboard() {
+  const [files, setFiles] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+  const [isLoading, setIsLoading] = useState({ active: false, message: "" });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const fetchFiles = useCallback(async () => {
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      console.error("No auth token found");
+      return;
+    }
+
+    const response = await fetch("http://127.0.0.1:8000/user_data", {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const filesArray = Object.entries(data.file_metadata).map(
+        ([key, value]) => {
+          return { id: key, ...JSON.parse(value) };
+        }
+      );
+      setFiles(filesArray);
+    } else {
+      console.error("Failed to fetch files");
+    }
+  }, []);
+
+  // Use useEffect to call fetchFiles on component mount.
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles, sortBy]);
+
+  // New function to update the search term state
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  // Function to sort files based on selected filter
+  const sortFiles = (files, sortBy) => {
+    switch (sortBy) {
+      case "name":
+        return [...files].sort((a, b) => a.filename.localeCompare(b.filename));
+      case "size":
+        return [...files].sort((a, b) => a.size - b.size);
+      case "date":
+        return [...files].sort(
+          (a, b) => new Date(b.uploaded) - new Date(a.uploaded)
+        );
+      default:
+        return files;
+    }
+  };
+
+  const filteredFiles = files.filter((file) =>
+    file.filename.toLowerCase().includes(searchTerm)
+  );
+
+  const sortedFiles = sortFiles(filteredFiles, sortBy);
+
+  const handleFileUpload = async (formData) => {
+    toggleLoading({ active: true, message: "Uploading" });
+    const accessToken = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      await response.json();
+      alert("Files uploaded successfully.");
+      fetchFiles(); // Refetch the files to update the table
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert(error.message || "Upload failed.");
+    } finally {
+      toggleLoading({ active: false, message: "" });
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      alert("Please select files to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append("files", file);
+    });
+
+    await handleFileUpload(formData);
+  };
+
+  const toggleLoading = ({ active, message = "" }) => {
+    setIsLoading({ active, message });
+  };
+
+  return (
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <div className="hidden border-r bg-muted/40 md:block">
+        <div className="flex h-full max-h-screen flex-col gap-2">
+          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+            <a href="/" className="flex items-center gap-2 font-semibold">
+              <Package2 className="h-6 w-6" />
+              <span className="">FileTao</span>
+            </a>
+          </div>
+          <div className="flex-1">
+            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+              <a
+                href="#"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <LineChart className="h-4 w-4" />
+                Analytics
+              </a>
+            </nav>
+          </div>
+          <div className="mt-auto p-4">
+            <Card x-chunk="dashboard-02-chunk-0">
+              <CardHeader className="p-2 pt-0 md:p-4">
+                <CardTitle>Upgrade to Pro</CardTitle>
+                <CardDescription>
+                  Unlock all features and get unlimited access to our support
+                  team.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+                <Button size="sm" className="w-full">
+                  Upgrade
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col h-screen">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                <a
+                  href="#"
+                  className="flex items-center gap-2 text-lg font-semibold"
+                >
+                  <Package2 className="h-6 w-6" />
+                  <span className="sr-only">FileTao</span>
+                </a>
+                <a
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <LineChart className="h-5 w-5" />
+                  Analytics
+                </a>
+              </nav>
+              <div className="mt-auto">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Upgrade to Pro</CardTitle>
+                    <CardDescription>
+                      Unlock all features and get unlimited access to our
+                      support team.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button size="sm" className="w-full">
+                      Upgrade
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <div className="w-full flex-1">
+            <form>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+                />
+              </div>
+            </form>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-hidden">
+          <ScrollArea className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="hidden md:table-cell"></TableHead>
+                  <TableHead className="">Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Size</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Last Modified
+                  </TableHead>
+                  <TableHead className=""></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedFiles.map((file) => (
+                  <FileTableItem
+                    key={file.id}
+                    filename={file.filename}
+                    size={formatBytes(file.size).string}
+                    uploaded={formatDate(file.uploaded)}
+                    extension={file.ext}
+                    toggleLoading={toggleLoading}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </main>
+      </div>
+    </div>
+  );
+}

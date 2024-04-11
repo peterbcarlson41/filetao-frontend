@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { PlusCircle, Search, ListFilter } from "lucide-react";
-import Navbar from "@/components/common/Navbar";
+import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
+import VerticalNavbar from "@/components/common/VerticalNavbar";
 import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -10,15 +9,6 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
 import LoadingPopup from "@/components/common/LoadingPopup";
@@ -28,9 +18,8 @@ const FilesDashboard = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState({ active: false, message: "" });
-  const itemsPerPage = 10;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -138,62 +127,16 @@ const FilesDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <Navbar />
-      <div className="sm:px-10 px-2 pb-5 pt-20 flex flex-col flex-1 overflow-hidden">
+    <div className="flex flex-row h-screen">
+      <VerticalNavbar isMenuOpen={isMenuOpen} />
+      <div className="sm:px-10 px-2 flex flex-col pb-5 flex-1 overflow-hidden">
         {isLoading.active && <LoadingPopup message={isLoading.message} />}
-        <div className="flex flex-row justify-between items-center gap-5 pb-5">
-          <Button
-            onClick={() => document.getElementById("fileInput").click()}
-            className="gap-1"
-          >
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Upload File
-            </span>
-          </Button>
-          <input
-            id="fileInput"
-            type="file"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            multiple
-          />
-
-          <div className="relative ml-auto flex-1 md:grow-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              onChange={handleSearchChange}
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-            />
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1">
-                <ListFilter className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Sort
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setSortBy("name")}>
-                Name
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSortBy("date")}>
-                Date
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSortBy("size")}>
-                Size
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <FileDashboardNav
+          handleFileChange={handleFileChange}
+          handleSearchChange={handleSearchChange}
+          setSortBy={setSortBy}
+          toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
+        />
         <ScrollArea className="rounded-md border">
           <Table>
             <TableHeader>
@@ -202,7 +145,7 @@ const FilesDashboard = () => {
                 <TableHead className="">Name</TableHead>
                 <TableHead className="hidden md:table-cell">Size</TableHead>
                 <TableHead className="hidden md:table-cell">
-                  Last Modified Date
+                  Last Modified
                 </TableHead>
                 <TableHead className=""></TableHead>
               </TableRow>

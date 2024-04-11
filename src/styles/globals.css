@@ -79,3 +79,29 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Assuming a breakpoint at 768px for mobile */
+@media (max-width: 768px) {
+  .vertical-navbar {
+    /* Fullscreen mobile menu styles */
+    position: fixed;
+    top: var(
+      --top-navbar-height
+    ); /* Set this variable to the height of your FileDashboardNav */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white; /* or any background you want */
+    z-index: 10; /* above main content */
+    display: none; /* hidden by default, will be shown based on state */
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 768px) {
+  .vertical-navbar {
+    /* Static desktop menu styles */
+    display: block; /* always shown on desktop */
+    width: 250px; /* or whatever width you prefer */
+  }
+}
