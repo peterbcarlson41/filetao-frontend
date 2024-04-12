@@ -12,22 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PlusCircle, Search, ListFilter, Menu } from "lucide-react";
 
-function FileDashboardNav({
-  handleFileChange,
-  handleSearchChange,
-  setSortBy,
-  toggleMenu,
-}) {
+function FileDashboardNav({ handleFileChange, handleSearchChange, setSortBy }) {
   return (
-    <div className="flex flex-row pl-10 sm:p-0 justify-between h-[64px] gap-2 items-center">
-      <Button
-        onClick={toggleMenu}
-        variant="outline"
-        size="sm"
-        className="gap-1"
-      >
-        <Menu className="h-3.5 w-3.5" />
-      </Button>
+    <div className="flex flex-row justify-between h-16 gap-2 items-center px-5">
       <Button
         onClick={() => document.getElementById("fileInput").click()}
         className="gap-1"
@@ -44,16 +31,6 @@ function FileDashboardNav({
         style={{ display: "none" }}
         multiple
       />
-
-      <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          onChange={handleSearchChange}
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-        />
-      </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

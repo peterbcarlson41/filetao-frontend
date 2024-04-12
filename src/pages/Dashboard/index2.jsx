@@ -1,17 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  Bell,
-  CircleUser,
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthContext";
+import { CircleUser, Menu, Search } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+import Tao from "@/components/common/Tao";
 import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
+import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
+import StatisticsCard from "@/components/common/StatisticsCard";
+import LoadingPopup from "@/components/common/LoadingPopup";
 import {
   Table,
   TableHeader,
@@ -19,15 +15,8 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -48,7 +37,13 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [isLoading, setIsLoading] = useState({ active: false, message: "" });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { logout } = useAuth();
+  let navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   const fetchFiles = useCallback(async () => {
     const authToken = localStorage.getItem("token");
@@ -151,47 +146,30 @@ export default function Dashboard() {
     await handleFileUpload(formData);
   };
 
-  const toggleLoading = ({ active, message = "" }) => {
-    setIsLoading({ active, message });
-  };
-
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+    <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <a href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
+              <Tao className="h-6 w-6" />
               <span className="">FileTao</span>
             </a>
           </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <a
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <LineChart className="h-4 w-4" />
-                Analytics
-              </a>
-            </nav>
-          </div>
-          <div className="mt-auto p-4">
+          <div className="my-auto p-4">
             <Card x-chunk="dashboard-02-chunk-0">
-              <CardHeader className="p-2 pt-0 md:p-4">
-                <CardTitle>Upgrade to Pro</CardTitle>
-                <CardDescription>
-                  Unlock all features and get unlimited access to our support
-                  team.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                <Button size="sm" className="w-full">
-                  Upgrade
-                </Button>
-              </CardContent>
+              <StatisticsCard />
             </Card>
           </div>
+          <footer className="p-5">
+            <a
+              href="https://github.com/ifrit98/storage-subnet/blob/main/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaGithub className="h-6 w-6" />
+            </a>
+          </footer>
         </div>
       </div>
       <div className="flex flex-col h-screen">
@@ -213,33 +191,24 @@ export default function Dashboard() {
                   href="#"
                   className="flex items-center gap-2 text-lg font-semibold"
                 >
-                  <Package2 className="h-6 w-6" />
+                  <Tao className="h-6 w-6" />
                   <span className="sr-only">FileTao</span>
                 </a>
-                <a
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <LineChart className="h-5 w-5" />
-                  Analytics
-                </a>
               </nav>
-              <div className="mt-auto">
+              <div className="my-auto">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Upgrade to Pro</CardTitle>
-                    <CardDescription>
-                      Unlock all features and get unlimited access to our
-                      support team.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button size="sm" className="w-full">
-                      Upgrade
-                    </Button>
-                  </CardContent>
+                  <StatisticsCard />
                 </Card>
               </div>
+              <footer>
+                <a
+                  href="https://github.com/ifrit98/storage-subnet/blob/main/README.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaGithub className="h-6 w-6" />
+                </a>
+              </footer>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
@@ -248,7 +217,8 @@ export default function Dashboard() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search products..."
+                  placeholder="Search files..."
+                  onChange={handleSearchChange}
                   className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
                 />
               </div>
@@ -264,14 +234,15 @@ export default function Dashboard() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-hidden">
+        <FileDashboardNav
+          handleFileChange={handleFileChange}
+          setSortBy={setSortBy}
+        ></FileDashboardNav>
+        <main className="flex flex-1 flex-col gap-4 px-4 pb-4 overflow-hidden">
           <ScrollArea className="rounded-md border">
             <Table>
               <TableHeader>
@@ -293,7 +264,6 @@ export default function Dashboard() {
                     size={formatBytes(file.size).string}
                     uploaded={formatDate(file.uploaded)}
                     extension={file.ext}
-                    toggleLoading={toggleLoading}
                   />
                 ))}
               </TableBody>

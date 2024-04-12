@@ -159,6 +159,7 @@ const FilesDashboard = () => {
                   uploaded={formatDate(file.uploaded)}
                   extension={file.ext}
                   toggleLoading={toggleLoading}
+                  isLoading={isLoading}
                 />
               ))}
             </TableBody>

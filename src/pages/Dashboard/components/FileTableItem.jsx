@@ -17,6 +17,7 @@ const FileTableItem = ({
   uploaded,
   size,
   toggleLoading,
+  isLoading,
 }) => {
   const onDownloadClick = () => handleDownload(filename, extension);
 

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Importing Menu and X icons from lucide-react
+import { Menu, X } from "lucide-react";
+import Tao from "@/components/common/Tao";
 
 export default function Navbar() {
   const { currentUser, logout } = useAuth();
@@ -29,7 +30,7 @@ export default function Navbar() {
             )}
           </button>
           <a className="sm:flex hidden items-center space-x-2" href="/">
-            <img src="/Subnet21.png" alt="Subnet 21 Logo" className="h-6 w-6" />
+            <Tao />
           </a>
         </div>
 
@@ -39,15 +40,12 @@ export default function Navbar() {
           } md:hidden absolute top-full left-0 bg-white dark:bg-gray-800 w-full px-4 py-2 border-b flex-col items-start`}
         >
           <a className="flex items-center space-x-2" href="/">
-            <img src="/Subnet21.png" alt="Subnet 21 Logo" className="h-6 w-6" />
+            <Tao />
           </a>
           {currentUser && (
             <>
               <a href="/dashboard" className="py-2 text-left">
                 Dashboard
-              </a>
-              <a href="/statistics" className="py-2 text-left">
-                Statistics
               </a>
             </>
           )}
@@ -65,16 +63,11 @@ export default function Navbar() {
               >
                 Dashboard
               </a>
-              <a
-                href="/statistics"
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-              >
-                Statistics
-              </a>
             </>
           )}
           <a
             href="https://github.com/ifrit98/storage-subnet/blob/main/README.md"
+            target="_blank"
             className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
           >
             About
