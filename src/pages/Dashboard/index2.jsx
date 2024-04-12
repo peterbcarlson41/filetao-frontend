@@ -167,8 +167,12 @@ export default function Dashboard() {
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
-      {isLoading.active && (
-        <UploadPopup message={isLoading.message} onClose={handleClosePopup} />
+      {isUploading.active && (
+        <UploadPopup
+          filename={isUploading.filename}
+          extensionresult={isUploading.result}
+          onClose={handleClosePopup}
+        />
       )}
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
