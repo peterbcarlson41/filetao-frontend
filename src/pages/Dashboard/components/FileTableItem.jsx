@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, DownloadIcon, TrashIcon } from "lucide-react";
-import LoadingPopup from "@/components/common/LoadingPopup";
 
 const FileTableItem = ({ filename, extension, uploaded, size }) => {
   const onDownloadClick = () => handleDownload(filename, extension);

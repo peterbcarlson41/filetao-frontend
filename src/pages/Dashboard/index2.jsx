@@ -36,11 +36,12 @@ export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [isUploading, setIsUploadloading] = useState({
+  const [isUploading, setIsUploading] = useState({
     active: false,
     filename: "",
     extension: "",
     result: "",
+    size: "",
   });
   const { logout } = useAuth();
   let navigate = useNavigate();
@@ -111,6 +112,7 @@ export default function Dashboard() {
       filename: "test",
       extension: "rtf",
       result: "",
+      size: "3 KB",
     });
     const accessToken = localStorage.getItem("token");
     try {
@@ -138,6 +140,7 @@ export default function Dashboard() {
       filename: "test",
       extension: "rtf",
       result: response.details.msg,
+      size: "3 KB",
     });
   };
 
@@ -162,6 +165,7 @@ export default function Dashboard() {
       filename: "test",
       extension: "rtf",
       result: "",
+      size: "",
     });
   };
 
@@ -170,8 +174,10 @@ export default function Dashboard() {
       {isUploading.active && (
         <UploadPopup
           filename={isUploading.filename}
-          extensionresult={isUploading.result}
+          extension={isUploading.extension}
+          result={isUploading.result}
           onClose={handleClosePopup}
+          size={isUploading.size}
         />
       )}
       <div className="hidden border-r bg-muted/40 md:block">
