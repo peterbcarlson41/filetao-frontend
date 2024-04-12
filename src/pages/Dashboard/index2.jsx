@@ -7,7 +7,7 @@ import Tao from "@/components/common/Tao";
 import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
 import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
 import StatisticsCard from "@/components/common/StatisticsCard";
-import LoadingPopup from "@/components/common/LoadingPopup";
+import UploadPopup from "@/components/common/UploadPopup";
 import {
   Table,
   TableHeader,
@@ -36,7 +36,12 @@ export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [isLoading, setIsLoading] = useState({ active: false, message: "" });
+  const [isUploading, setIsUploadloading] = useState({
+    active: false,
+    filename: "",
+    extension: "",
+    result: "",
+  });
   const { logout } = useAuth();
   let navigate = useNavigate();
 
@@ -71,17 +76,14 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Use useEffect to call fetchFiles on component mount.
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles, sortBy]);
 
-  // New function to update the search term state
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
 
-  // Function to sort files based on selected filter
   const sortFiles = (files, sortBy) => {
     switch (sortBy) {
       case "name":
@@ -104,9 +106,13 @@ export default function Dashboard() {
   const sortedFiles = sortFiles(filteredFiles, sortBy);
 
   const handleFileUpload = async (formData) => {
-    toggleLoading({ active: true, message: "Uploading" });
+    setIsUploading({
+      active: true,
+      filename: "test",
+      extension: "rtf",
+      result: "",
+    });
     const accessToken = localStorage.getItem("token");
-
     try {
       const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
         method: "POST",
@@ -126,9 +132,13 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Upload failed:", error);
       alert(error.message || "Upload failed.");
-    } finally {
-      toggleLoading({ active: false, message: "" });
     }
+    setIsUploading({
+      active: false,
+      filename: "test",
+      extension: "rtf",
+      result: response.details.msg,
+    });
   };
 
   const handleFileChange = async (event) => {
@@ -146,8 +156,20 @@ export default function Dashboard() {
     await handleFileUpload(formData);
   };
 
+  const handleClosePopup = () => {
+    setIsUploading({
+      active: false,
+      filename: "test",
+      extension: "rtf",
+      result: "",
+    });
+  };
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
+      {isLoading.active && (
+        <UploadPopup message={isLoading.message} onClose={handleClosePopup} />
+      )}
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">

@@ -11,18 +11,11 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, DownloadIcon, TrashIcon } from "lucide-react";
 import LoadingPopup from "@/components/common/LoadingPopup";
 
-const FileTableItem = ({
-  filename,
-  extension,
-  uploaded,
-  size,
-  toggleLoading,
-  isLoading,
-}) => {
+const FileTableItem = ({ filename, extension, uploaded, size }) => {
   const onDownloadClick = () => handleDownload(filename, extension);
 
   const handleDownload = async (filename, extension) => {
-    toggleLoading({ active: true, message: "Downloading files" });
+    // toggleLoading({ active: true, message: "Downloading files" });
     const token = localStorage.getItem("token");
     const apiUrl = `http://127.0.0.1:8000/retrieve/${encodeURIComponent(
       filename

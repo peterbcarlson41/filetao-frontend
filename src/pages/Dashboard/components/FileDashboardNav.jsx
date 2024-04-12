@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PlusCircle, Search, ListFilter, Menu } from "lucide-react";
+import { PlusCircle, ListFilter } from "lucide-react";
 
-function FileDashboardNav({ handleFileChange, handleSearchChange, setSortBy }) {
+function FileDashboardNav({ handleFileChange, setSortBy }) {
   return (
     <div className="flex flex-row justify-between h-16 gap-2 items-center px-5">
       <Button
@@ -31,7 +31,6 @@ function FileDashboardNav({ handleFileChange, handleSearchChange, setSortBy }) {
         style={{ display: "none" }}
         multiple
       />
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-1">
