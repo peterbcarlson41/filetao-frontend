@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext";
 import { CircleUser, Menu, Search } from "lucide-react";
@@ -7,7 +8,7 @@ import Tao from "@/components/common/Tao";
 import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
 import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
 import StatisticsCard from "@/components/common/StatisticsCard";
-import UploadDownloadPopup from "@/components/common/UploadDownloadPopup";
+import UploadDownloadPopup from "./components/UploadDownloadPopup";
 import {
   Table,
   TableHeader,
@@ -115,20 +116,21 @@ export default function Dashboard() {
   const sortedFiles = sortFiles(filteredFiles, sortBy);
 
   const handleFileUpload = async (formData) => {
-    // Reset the popup state to ensure it can trigger a re-render
-    setShowUploadPopup(false);
-    setTimeout(() => setShowUploadPopup(true), 0);
-
     const selectedFiles = Array.from(formData.getAll("files"));
+    const timestamp = Date.now();
     const fileUploadStates = selectedFiles.map((file) => ({
+      id: uuidv4(), // Generate a unique identifier for each file
       filename: file.name.split(".").slice(0, -1).join("."),
       extension: file.name.split(".").pop(),
       loading: true, // Set loading to true as the upload starts
       status: "uploading", // Initial upload status
       action: "upload",
+      timestamp: timestamp, // Timestamp to further ensure uniqueness
     }));
 
-    setTransfers(fileUploadStates);
+    // Add new uploads to existing transfers without removing old ones
+    setTransfers((prev) => [...prev, ...fileUploadStates]);
+    setShowUploadPopup(true);
 
     const accessToken = localStorage.getItem("token");
     const url = `${BASE_URL}/uploadfiles`;
@@ -147,20 +149,32 @@ export default function Dashboard() {
         status: response.ok ? "success" : "failed",
       }));
 
-      setTransfers(updatedFileUploadStates);
-      if (!response.ok)
+      // Update the state with the result of the upload
+      setTransfers((prev) =>
+        prev.map((transFile) => {
+          const update = updatedFileUploadStates.find(
+            (u) => u.id === transFile.id
+          );
+          return update || transFile;
+        })
+      );
+
+      if (!response.ok) {
         throw new Error(`Upload failed: ${response.statusText}`);
-      alert("Files uploaded successfully.");
+      }
+
       fetchFiles();
     } catch (error) {
       console.error("Upload failed:", error);
-      alert(error.message || "Upload failed.");
-      setTransfers(
-        fileUploadStates.map((file) => ({
-          ...file,
-          loading: false,
-          status: "failed",
-        }))
+      setTransfers((prev) =>
+        prev.map((transFile) => {
+          const fileUpdate = fileUploadStates.find(
+            (u) => u.id === transFile.id
+          );
+          return fileUpdate
+            ? { ...transFile, loading: false, status: "failed" }
+            : transFile;
+        })
       );
     }
   };

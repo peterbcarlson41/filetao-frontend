@@ -56,7 +56,17 @@ function UploadDownloadPopup({ files, onClose }) {
                   key={index}
                   className="flex items-center justify-between gap-2"
                 >
-                  <p className="text-md text-start">{`${file.filename}.${file.extension}`}</p>
+                  <p
+                    className="text-md text-start truncate"
+                    style={{
+                      maxWidth: "70%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {`${file.filename}.${file.extension}`}
+                  </p>
                   {file.loading ? (
                     <LoadingSpinner className="text-blue-700" />
                   ) : file.status === "success" ? (
