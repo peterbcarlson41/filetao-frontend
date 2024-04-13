@@ -41,6 +41,9 @@ export default function Dashboard() {
   const [numberOfFiles, setNumberOfFiles] = useState(0);
   const [storageUsed, setStorageUsed] = useState(0);
 
+  //get base API URL from environment variables
+  const BASE_URL = import.meta.env.VITE_APP_API_URL;
+
   const { logout } = useAuth();
   let navigate = useNavigate();
 
@@ -56,7 +59,9 @@ export default function Dashboard() {
       return;
     }
 
-    const response = await fetch("http://127.0.0.1:8000/user_data", {
+    const url = `${BASE_URL}/user_data`;
+
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -75,14 +80,12 @@ export default function Dashboard() {
       setNumberOfFiles(data.stats.filecount);
       // Convert storage to GB assuming the value is in bytes
       setStorageUsed(data.stats.storage);
-      setStorageWithUnits(formatBytes(data.stats.storage).string);
     } else {
       console.error("Failed to fetch files");
     }
   }, []);
 
   useEffect(() => {
-    console.log("Fetched files");
     fetchFiles();
   }, []);
 
@@ -128,8 +131,9 @@ export default function Dashboard() {
     setTransfers(fileUploadStates);
 
     const accessToken = localStorage.getItem("token");
+    const url = `${BASE_URL}/uploadfiles`;
     try {
-      const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -175,13 +179,12 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://127.0.0.1:8000/retrieve/${encodeURIComponent(filename)}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          method: "GET",
-        }
-      );
+      const url = `${BASE_URL}/retrieve/${encodeURIComponent(filename)}`;
+
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+        method: "GET",
+      });
 
       if (response.ok) {
         const blob = await response.blob();
@@ -234,8 +237,8 @@ export default function Dashboard() {
   };
 
   const handleClosePopup = () => {
-    setShowUploadPopup(false); // Hide the popup
-    setTransfers([]); // Optionally clear the transfers if you want to reset the state completely
+    setShowUploadPopup(false);
+    setTransfers([]);
   };
 
   return (

@@ -8,7 +8,7 @@ import Login from "./pages/Login/index";
 import Register from "./pages/Register/index";
 import NotFound from "./pages/NotFound/index";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import MyFiles from "./pages/Dashboard/index2";
+import MyFiles from "./pages/Dashboard/index";
 import Statistics from "./components/common/StatisticsCard";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

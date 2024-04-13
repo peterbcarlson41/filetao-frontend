@@ -22,9 +22,13 @@ export default function RegisterForm() {
   const navigate = useNavigate();
   const { setCurrentUser } = useContext(AuthContext);
 
+  //get base API URL from environment variables
+  const BASE_URL = import.meta.env.VITE_APP_API_URL;
+
   const registerUser = async (username, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/register", {
+      const url = `${BASE_URL}/register`;
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -22,14 +22,19 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
 
+  //get base API URL from environment variables
+  const BASE_URL = import.meta.env.VITE_APP_API_URL;
+
   const obtainAccessToken = async (username, password) => {
     const params = new URLSearchParams();
     params.append("grant_type", "password");
     params.append("username", username);
     params.append("password", password);
 
+    const url = `${BASE_URL}/token`;
+
     try {
-      const response = await fetch("http://127.0.0.1:8000/token", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
