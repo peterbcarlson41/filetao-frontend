@@ -38,6 +38,8 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState("name");
   const [transfers, setTransfers] = useState([]);
   const [showUploadPopup, setShowUploadPopup] = useState(false);
+  const [numberOfFiles, setNumberOfFiles] = useState(0);
+  const [storageUsed, setStorageUsed] = useState(0);
 
   const { logout } = useAuth();
   let navigate = useNavigate();
@@ -68,6 +70,12 @@ export default function Dashboard() {
         }
       );
       setFiles(filesArray);
+
+      // Get info to display in the stats card
+      setNumberOfFiles(data.stats.filecount);
+      // Convert storage to GB assuming the value is in bytes
+      setStorageUsed(data.stats.storage);
+      setStorageWithUnits(formatBytes(data.stats.storage).string);
     } else {
       console.error("Failed to fetch files");
     }
@@ -245,7 +253,10 @@ export default function Dashboard() {
           </div>
           <div className="p-4">
             <Card x-chunk="dashboard-02-chunk-0">
-              <StatisticsCard />
+              <StatisticsCard
+                numberOfFiles={numberOfFiles}
+                storageUsed={storageUsed}
+              />
             </Card>
           </div>
           <footer className="p-5">

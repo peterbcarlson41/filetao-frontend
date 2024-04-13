@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -13,53 +13,14 @@ import { Button } from "@/components/ui/button";
 
 import { formatBytes } from "@/utils/formatBytes";
 
-export default function Statistics() {
-  const [numberOfFiles, setNumberOfFiles] = useState(0);
-  const [storageUsed, setStorageUsed] = useState(0);
-  const [storageWithUnits, setStorageWithUnits] = useState(0);
+export default function Statistics({ numberOfFiles, storageUsed }) {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Retrieve the token from localStorage
-        const authToken = localStorage.getItem("token");
-
-        // Make sure we have the token before making the call
-        if (!authToken) {
-          console.error("No auth token found");
-          return;
-        }
-
-        // Call the user_data endpoint
-        const response = await fetch("http://127.0.0.1:8000/user_data", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const data = await response.json();
-        // Extract filecount and storage from stats
-        setNumberOfFiles(data.stats.filecount);
-        // Convert storage to GB assuming the value is in bytes
-        setStorageUsed(data.stats.storage);
-        setStorageWithUnits(formatBytes(data.stats.storage).string);
-      } catch (error) {
-        console.error("An error occurred while fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  //50gb in bytes
-  const storageTotal = 53687091200;
+  // Constants for total storage and formatting
+  const storageTotal = 53687091200; // 50 GB in bytes
   const storageTotalFormatted = formatBytes(storageTotal).string;
   const storagePercentage = (storageUsed / storageTotal) * 100;
+  const storageUsedFormatted = formatBytes(storageUsed).string;
 
   // Define your Tailwind colors
   const primaryColor = "#2462ea";
@@ -88,7 +49,7 @@ export default function Statistics() {
           />
         </div>
         <div className="text-center mt-4">
-          <div className="text-lg font-medium">{`${storageWithUnits} of ${storageTotalFormatted} used`}</div>
+          <div className="text-lg font-medium">{`${storageUsedFormatted} of ${storageTotalFormatted} used`}</div>
         </div>
       </CardContent>
       <div className="p-5 border-t">
