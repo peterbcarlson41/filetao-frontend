@@ -36,34 +36,8 @@ export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [isUploading, setIsUploading] = useState({
-    active: false,
-    filename: "",
-    extension: "",
-    result: "",
-    size: "",
-  });
-
-  //dummy data to test UI
-  const dummyUploadData = [
-    {
-      filename: "report",
-      extension: "pdf",
-      result: "Uploaded successfully",
-    },
-    {
-      filename: "image",
-      extension: "jpg",
-      result: "Upload failed",
-    },
-    {
-      filename: "data",
-      extension: "xlsx",
-      result: "Uploading...",
-    },
-  ];
-
-  const [uploads] = useState(dummyUploadData);
+  const [isUploading, setIsUploading] = useState([]);
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
 
   const { logout } = useAuth();
   let navigate = useNavigate();
@@ -129,15 +103,21 @@ export default function Dashboard() {
   const sortedFiles = sortFiles(filteredFiles, sortBy);
 
   const handleFileUpload = async (formData) => {
+    // Reset the popup state to ensure it can trigger a re-render
+    setShowUploadPopup(false);
+    setTimeout(() => setShowUploadPopup(true), 0);
+
     const selectedFiles = Array.from(formData.getAll("files"));
-    setIsUploading(
-      selectedFiles.map((file) => ({
-        active: true,
-        filename: file.name.split(".").slice(0, -1).join("."),
-        extension: file.name.split(".").pop(),
-        result: "Uploading...",
-      }))
-    );
+    const fileUploadStates = selectedFiles.map((file) => ({
+      filename: file.name.split(".").slice(0, -1).join("."),
+      extension: file.name.split(".").pop(),
+      loading: true, // Set loading to true as the upload starts
+      status: "uploading", // Initial upload status
+      action: "upload",
+    }));
+
+    setIsUploading(fileUploadStates);
+
     const accessToken = localStorage.getItem("token");
     try {
       const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
@@ -148,15 +128,27 @@ export default function Dashboard() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
+      const updatedFileUploadStates = fileUploadStates.map((file) => ({
+        ...file,
+        loading: false,
+        status: response.ok ? "success" : "failed",
+      }));
 
+      setIsUploading(updatedFileUploadStates);
+      if (!response.ok)
+        throw new Error(`Upload failed: ${response.statusText}`);
       alert("Files uploaded successfully.");
-      fetchFiles(); // Refetch the files to update the table
+      fetchFiles();
     } catch (error) {
       console.error("Upload failed:", error);
       alert(error.message || "Upload failed.");
+      setIsUploading(
+        fileUploadStates.map((file) => ({
+          ...file,
+          loading: false,
+          status: "failed",
+        }))
+      );
     }
   };
 
@@ -173,13 +165,20 @@ export default function Dashboard() {
     });
 
     await handleFileUpload(formData);
+
+    event.target.value = "";
   };
 
-  const handleClosePopup = () => {};
+  const handleClosePopup = () => {
+    setShowUploadPopup(false);
+    setIsUploading([]);
+  };
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
-      {true && <UploadPopup files={uploads} onClose={handleClosePopup} />}
+      {showUploadPopup && (
+        <UploadPopup files={isUploading} onClose={handleClosePopup} />
+      )}
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full justify-between max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">

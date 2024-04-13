@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -13,6 +12,8 @@ import {
 import { PlusCircle, ListFilter } from "lucide-react";
 
 function FileDashboardNav({ handleFileChange, setSortBy }) {
+  const fileInputRef = useRef(null);
+
   return (
     <div className="flex flex-row justify-between h-16 gap-2 items-center px-5">
       <Button
@@ -28,8 +29,9 @@ function FileDashboardNav({ handleFileChange, setSortBy }) {
         id="fileInput"
         type="file"
         onChange={handleFileChange}
-        style={{ display: "none" }}
-        multiple
+        ref={fileInputRef}
+        style={{ display: "none" }} // Hide the input if it's visually not needed
+        multiple // If you want to upload multiple files at once
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
