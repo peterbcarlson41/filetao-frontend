@@ -43,6 +43,28 @@ export default function Dashboard() {
     result: "",
     size: "",
   });
+
+  //dummy data to test UI
+  const dummyUploadData = [
+    {
+      filename: "report",
+      extension: "pdf",
+      result: "Uploaded successfully",
+    },
+    {
+      filename: "image",
+      extension: "jpg",
+      result: "Upload failed",
+    },
+    {
+      filename: "data",
+      extension: "xlsx",
+      result: "Uploading...",
+    },
+  ];
+
+  const [uploads] = useState(dummyUploadData);
+
   const { logout } = useAuth();
   let navigate = useNavigate();
 
@@ -107,13 +129,15 @@ export default function Dashboard() {
   const sortedFiles = sortFiles(filteredFiles, sortBy);
 
   const handleFileUpload = async (formData) => {
-    setIsUploading({
-      active: true,
-      filename: "test",
-      extension: "rtf",
-      result: "",
-      size: "3 KB",
-    });
+    const selectedFiles = Array.from(formData.getAll("files"));
+    setIsUploading(
+      selectedFiles.map((file) => ({
+        active: true,
+        filename: file.name.split(".").slice(0, -1).join("."),
+        extension: file.name.split(".").pop(),
+        result: "Uploading...",
+      }))
+    );
     const accessToken = localStorage.getItem("token");
     try {
       const response = await fetch("http://127.0.0.1:8000/uploadfiles", {
@@ -128,20 +152,12 @@ export default function Dashboard() {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      await response.json();
       alert("Files uploaded successfully.");
       fetchFiles(); // Refetch the files to update the table
     } catch (error) {
       console.error("Upload failed:", error);
       alert(error.message || "Upload failed.");
     }
-    setIsUploading({
-      active: false,
-      filename: "test",
-      extension: "rtf",
-      result: response.details.msg,
-      size: "3 KB",
-    });
   };
 
   const handleFileChange = async (event) => {
@@ -159,27 +175,11 @@ export default function Dashboard() {
     await handleFileUpload(formData);
   };
 
-  const handleClosePopup = () => {
-    setIsUploading({
-      active: false,
-      filename: "test",
-      extension: "rtf",
-      result: "",
-      size: "",
-    });
-  };
+  const handleClosePopup = () => {};
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
-      {true && (
-        <UploadPopup
-          filename={isUploading.filename}
-          extension={isUploading.extension}
-          result={isUploading.result}
-          onClose={handleClosePopup}
-          size={isUploading.size}
-        />
-      )}
+      {true && <UploadPopup files={uploads} onClose={handleClosePopup} />}
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full justify-between max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
