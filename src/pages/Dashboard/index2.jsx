@@ -7,7 +7,7 @@ import Tao from "@/components/common/Tao";
 import FileTableItem from "@/pages/Dashboard/components/FileTableItem";
 import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
 import StatisticsCard from "@/components/common/StatisticsCard";
-import UploadPopup from "@/components/common/UploadPopup";
+import UploadDownloadPopup from "@/components/common/UploadDownloadPopup";
 import {
   Table,
   TableHeader,
@@ -36,7 +36,7 @@ export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [isUploading, setIsUploading] = useState([]);
+  const [transfers, setTransfers] = useState([]);
   const [showUploadPopup, setShowUploadPopup] = useState(false);
 
   const { logout } = useAuth();
@@ -116,7 +116,7 @@ export default function Dashboard() {
       action: "upload",
     }));
 
-    setIsUploading(fileUploadStates);
+    setTransfers(fileUploadStates);
 
     const accessToken = localStorage.getItem("token");
     try {
@@ -134,7 +134,7 @@ export default function Dashboard() {
         status: response.ok ? "success" : "failed",
       }));
 
-      setIsUploading(updatedFileUploadStates);
+      setTransfers(updatedFileUploadStates);
       if (!response.ok)
         throw new Error(`Upload failed: ${response.statusText}`);
       alert("Files uploaded successfully.");
@@ -142,12 +142,67 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Upload failed:", error);
       alert(error.message || "Upload failed.");
-      setIsUploading(
+      setTransfers(
         fileUploadStates.map((file) => ({
           ...file,
           loading: false,
           status: "failed",
         }))
+      );
+    }
+  };
+
+  const handleFileDownload = async (filename, extension) => {
+    const newTransfer = {
+      filename: filename,
+      extension: extension,
+      loading: true,
+      status: "downloading",
+      action: "download",
+    };
+
+    setTransfers((prevTransfers) => [...prevTransfers, newTransfer]);
+    setShowUploadPopup(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://127.0.0.1:8000/retrieve/${encodeURIComponent(filename)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          method: "GET",
+        }
+      );
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${filename}.${extension}`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+
+        // Update only the status and loading flag of the specific download
+        setTransfers((prevTransfers) =>
+          prevTransfers.map((file) =>
+            file.filename === filename && file.extension === extension
+              ? { ...file, loading: false, status: "success" }
+              : file
+          )
+        );
+      } else {
+        throw new Error("Failed to download file");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      setTransfers((prevTransfers) =>
+        prevTransfers.map((file) =>
+          file.filename === filename && file.extension === extension
+            ? { ...file, loading: false, status: "failed" }
+            : file
+        )
       );
     }
   };
@@ -170,14 +225,14 @@ export default function Dashboard() {
   };
 
   const handleClosePopup = () => {
-    setShowUploadPopup(false);
-    setIsUploading([]);
+    setShowUploadPopup(false); // Hide the popup
+    setTransfers([]); // Optionally clear the transfers if you want to reset the state completely
   };
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
       {showUploadPopup && (
-        <UploadPopup files={isUploading} onClose={handleClosePopup} />
+        <UploadDownloadPopup files={transfers} onClose={handleClosePopup} />
       )}
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full justify-between max-h-screen flex-col gap-2">
@@ -287,17 +342,16 @@ export default function Dashboard() {
                   <TableHead className=""></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {sortedFiles.map((file) => (
-                  <FileTableItem
-                    key={file.id}
-                    filename={file.filename}
-                    size={formatBytes(file.size).string}
-                    uploaded={formatDate(file.uploaded)}
-                    extension={file.ext}
-                  />
-                ))}
-              </TableBody>
+              {sortedFiles.map((file) => (
+                <FileTableItem
+                  key={file.id}
+                  filename={file.filename}
+                  size={formatBytes(file.size).string}
+                  uploaded={formatDate(file.uploaded)}
+                  extension={file.ext}
+                  onDownload={handleFileDownload} // Pass the download handler
+                />
+              ))}
             </Table>
           </ScrollArea>
         </main>

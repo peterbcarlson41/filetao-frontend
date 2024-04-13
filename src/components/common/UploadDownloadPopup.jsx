@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/common/Spinner";
 
-function UploadPopup({ files, onClose }) {
+function UploadDownloadPopup({ files, onClose }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const toggleExpand = () => {
@@ -74,4 +74,4 @@ function UploadPopup({ files, onClose }) {
   );
 }
 
-export default UploadPopup;
+export default UploadDownloadPopup;
