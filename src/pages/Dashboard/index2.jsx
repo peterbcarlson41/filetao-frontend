@@ -74,8 +74,9 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    console.log("Fetched files");
     fetchFiles();
-  }, [fetchFiles, sortBy]);
+  }, []);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -342,16 +343,18 @@ export default function Dashboard() {
                   <TableHead className=""></TableHead>
                 </TableRow>
               </TableHeader>
-              {sortedFiles.map((file) => (
-                <FileTableItem
-                  key={file.id}
-                  filename={file.filename}
-                  size={formatBytes(file.size).string}
-                  uploaded={formatDate(file.uploaded)}
-                  extension={file.ext}
-                  onDownload={handleFileDownload} // Pass the download handler
-                />
-              ))}
+              <TableBody>
+                {sortedFiles.map((file) => (
+                  <FileTableItem
+                    key={file.id}
+                    filename={file.filename}
+                    size={formatBytes(file.size).string}
+                    uploaded={formatDate(file.uploaded)}
+                    extension={file.ext}
+                    onDownload={handleFileDownload} // Pass the download handler
+                  />
+                ))}
+              </TableBody>
             </Table>
           </ScrollArea>
         </main>
