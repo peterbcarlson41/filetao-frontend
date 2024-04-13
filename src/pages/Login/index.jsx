@@ -1,40 +1,54 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../components/auth/AuthContext.jsx";
+import { useAuth } from "@/components/auth/AuthContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/common/navbar";
+import {
+  Form,
+  FormControl,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Error } from "@/components/common/Error";
-import Navbar from "@/components/common/navbar";
+
+// Define the validation schema using Zod
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required."),
+  password: z.string().min(1, "Password is required."),
+});
 
 export default function LoginForm() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
-
-  //get base API URL from environment variables
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-  const obtainAccessToken = async (username, password) => {
-    const params = new URLSearchParams();
-    params.append("grant_type", "password");
-    params.append("username", username);
-    params.append("password", password);
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
 
-    const url = `${BASE_URL}/token`;
-
+  const onSubmit = async (data) => {
     try {
-      const response = await fetch(url, {
+      const params = new URLSearchParams();
+      params.append("grant_type", "password");
+      params.append("username", data.username);
+      params.append("password", data.password);
+
+      const response = await fetch(`${BASE_URL}/token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -42,25 +56,24 @@ export default function LoginForm() {
         body: params.toString(),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
+
       if (response.ok) {
-        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("token", responseData.access_token);
         setCurrentUser({ isLoggedIn: true });
         navigate("/dashboard");
       } else {
-        throw new Error(
-          data.error_description || "Failed to obtain access token"
-        );
+        form.setError("password", {
+          type: "manual",
+          message: responseData.detail || "Failed to obtain access token",
+        });
       }
     } catch (error) {
-      setError(error.message || "Login failed.");
+      form.setError("password", {
+        type: "manual",
+        message: "Network error. Please try again later.",
+      });
     }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-    await obtainAccessToken(username, password);
   };
 
   return (
@@ -68,44 +81,54 @@ export default function LoginForm() {
       <Navbar />
       <div className="flex justify-center items-center h-screen px-5">
         <Card className="w-full max-w-sm">
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>
-                Enter your username and password to log in.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="user1"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="off"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              {error && <Error message={error} />}
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full">
-                Sign in
-              </Button>
-            </CardFooter>
-          </form>
+          <CardHeader>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>
+              Enter your username and password to log in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col space-y-2"
+              >
+                <FormItem>
+                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter your username"
+                      {...form.register("username")}
+                    />
+                  </FormControl>
+                  <div style={{ minHeight: "20px" }}>
+                    <FormMessage>
+                      {form.formState.errors.username?.message}
+                    </FormMessage>
+                  </div>
+                </FormItem>
+                <FormItem>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      {...form.register("password")}
+                    />
+                  </FormControl>
+                  <div style={{ minHeight: "20px" }}>
+                    <FormMessage>
+                      {form.formState.errors.password?.message}
+                    </FormMessage>
+                  </div>
+                </FormItem>
+                <Button type="submit">Sign In</Button>
+              </form>
+            </Form>
+          </CardContent>
         </Card>
       </div>
     </>
