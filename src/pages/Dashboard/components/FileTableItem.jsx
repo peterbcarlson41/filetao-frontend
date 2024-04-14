@@ -18,9 +18,9 @@ const FileTableItem = ({ filename, extension, uploaded, size, onDownload }) => {
 
   return (
     <TableRow>
-      <TableCell className="text-left hidden md:table-cell">
+      {/* <TableCell className="text-left hidden md:table-cell">
         <Checkbox />
-      </TableCell>
+      </TableCell> */}
       <TableCell className="text-left table-cell font-medium">
         {filename}
       </TableCell>

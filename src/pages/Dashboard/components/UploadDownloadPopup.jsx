@@ -3,6 +3,11 @@ import { ChevronDown, ChevronUp, X, Check } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/common/Spinner";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 function UploadDownloadPopup({ files, onClose }) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -32,9 +37,9 @@ function UploadDownloadPopup({ files, onClose }) {
               onClick={toggleExpand}
             >
               {isExpanded ? (
-                <ChevronDown className="w-5 h-5 cursor-pointer" />
+                <ChevronDown className="w-5 h-5" />
               ) : (
-                <ChevronUp className="w-5 h-5 cursor-pointer" />
+                <ChevronUp className="w-5 h-5" />
               )}
             </Button>
             <Button
@@ -44,7 +49,7 @@ function UploadDownloadPopup({ files, onClose }) {
               onClick={onClose}
               disabled={anyFileLoading}
             >
-              <X className="w-5 h-5 cursor-pointer" />
+              <X className="w-5 h-5" />
             </Button>
           </div>
         </CardHeader>
@@ -69,11 +74,26 @@ function UploadDownloadPopup({ files, onClose }) {
                   </p>
                   {file.loading ? (
                     <LoadingSpinner className="text-blue-700" />
-                  ) : file.status === "success" ? (
-                    <Check className="text-green-500" />
-                  ) : file.status === "failed" ? (
-                    <X className="text-red-500" />
-                  ) : null}
+                  ) : (
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <span>
+                          {file.status === "success" ? (
+                            <Check className="text-green-500" />
+                          ) : (
+                            <X className="text-red-500" />
+                          )}
+                        </span>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-40 bg-white p-2 shadow-lg rounded-md">
+                        <span>
+                          {file.status === "success"
+                            ? "Upload successful"
+                            : "Upload failed"}
+                        </span>
+                      </HoverCardContent>
+                    </HoverCard>
+                  )}
                 </div>
               ))}
             </div>

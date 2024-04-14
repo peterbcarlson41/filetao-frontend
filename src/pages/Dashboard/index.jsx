@@ -115,68 +115,68 @@ export default function Dashboard() {
 
   const sortedFiles = sortFiles(filteredFiles, sortBy);
 
-  const handleFileUpload = async (formData) => {
-    const selectedFiles = Array.from(formData.getAll("files"));
-    const timestamp = Date.now();
-    const fileUploadStates = selectedFiles.map((file) => ({
-      id: uuidv4(), // Generate a unique identifier for each file
-      filename: file.name.split(".").slice(0, -1).join("."),
-      extension: file.name.split(".").pop(),
-      loading: true, // Set loading to true as the upload starts
-      status: "uploading", // Initial upload status
-      action: "upload",
-      timestamp: timestamp, // Timestamp to further ensure uniqueness
-    }));
-
-    // Add new uploads to existing transfers without removing old ones
-    setTransfers((prev) => [...prev, ...fileUploadStates]);
+  const handleFileUpload = async (selectedFiles) => {
     setShowUploadPopup(true);
+    const fileUploadStates = selectedFiles.map((file) => {
+      return {
+        id: uuidv4(),
+        filename: file.name.split(".").slice(0, -1).join("."),
+        extension: file.name.split(".").pop(),
+        loading: true,
+        status: "uploading",
+        action: "upload",
+      };
+    });
 
-    const accessToken = localStorage.getItem("token");
-    const url = `${BASE_URL}/uploadfiles`;
-    try {
-      const response = await fetch(url, {
+    // Append new file upload states to the existing transfers, ensuring that previous transfers are not removed
+    setTransfers((prev) => [...prev, ...fileUploadStates]);
+
+    selectedFiles.forEach((file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const matchingState = fileUploadStates.find(
+        (f) =>
+          f.filename === file.name.split(".").slice(0, -1).join(".") &&
+          f.extension === file.name.split(".").pop()
+      );
+
+      fetch(`${BASE_URL}/uploadfile`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: formData,
-      });
-
-      const updatedFileUploadStates = fileUploadStates.map((file) => ({
-        ...file,
-        loading: false,
-        status: response.ok ? "success" : "failed",
-      }));
-
-      // Update the state with the result of the upload
-      setTransfers((prev) =>
-        prev.map((transFile) => {
-          const update = updatedFileUploadStates.find(
-            (u) => u.id === transFile.id
-          );
-          return update || transFile;
+      })
+        .then((response) => {
+          if (response.ok) {
+            setTransfers((prev) =>
+              prev.map((trans) =>
+                trans.id === matchingState.id
+                  ? { ...trans, loading: false, status: "success" }
+                  : trans
+              )
+            );
+          } else {
+            setTransfers((prev) =>
+              prev.map((trans) =>
+                trans.id === matchingState.id
+                  ? { ...trans, loading: false, status: "failed" }
+                  : trans
+              )
+            );
+          }
         })
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-
-      fetchFiles();
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setTransfers((prev) =>
-        prev.map((transFile) => {
-          const fileUpdate = fileUploadStates.find(
-            (u) => u.id === transFile.id
+        .catch((error) => {
+          setTransfers((prev) =>
+            prev.map((trans) =>
+              trans.id === matchingState.id
+                ? { ...trans, loading: false, status: "failed" }
+                : trans
+            )
           );
-          return fileUpdate
-            ? { ...transFile, loading: false, status: "failed" }
-            : transFile;
-        })
-      );
-    }
+        });
+    });
+
+    fetchFiles(); // Optionally, refresh files after all uploads complete, or consider a different approach to optimize user experience
   };
 
   const handleFileDownload = async (filename, extension) => {
@@ -233,21 +233,13 @@ export default function Dashboard() {
     }
   };
 
-  const handleFileChange = async (event) => {
-    const selectedFiles = event.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) {
+  const handleFileChange = (event) => {
+    if (!event.target.files || event.target.files.length === 0) {
       alert("Please select files to upload.");
       return;
     }
-
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append("files", file);
-    });
-
-    await handleFileUpload(formData);
-
-    event.target.value = "";
+    handleFileUpload(Array.from(event.target.files));
+    event.target.value = ""; // Clear the input after handling files
   };
 
   const handleClosePopup = () => {
@@ -362,7 +354,7 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="hidden md:table-cell"></TableHead>
+                  {/* <TableHead className="hidden md:table-cell"></TableHead> */}
                   <TableHead className="">Name</TableHead>
                   <TableHead className="hidden md:table-cell">Size</TableHead>
                   <TableHead className="hidden md:table-cell">
