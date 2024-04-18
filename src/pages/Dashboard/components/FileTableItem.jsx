@@ -10,10 +10,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, DownloadIcon, TrashIcon } from "lucide-react";
 
-const FileTableItem = ({ filename, extension, uploaded, size, onDownload }) => {
+const FileTableItem = ({
+  filename,
+  extension,
+  uploaded,
+  size,
+  onDownload,
+  onDelete,
+}) => {
   // Function to trigger download
   const handleDownloadClick = () => {
     onDownload(filename, extension); // Calling the passed download handler
+  };
+
+  const handleDeleteClick = () => {
+    onDelete(filename, extension);
   };
 
   return (
@@ -44,7 +55,7 @@ const FileTableItem = ({ filename, extension, uploaded, size, onDownload }) => {
               <DownloadIcon className="mr-2 h-4 w-4" />
               Download
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDeleteClick}>
               <TrashIcon className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

@@ -16,10 +16,7 @@ function UploadDownloadPopup({ files, onClose }) {
     setIsExpanded(!isExpanded);
   };
 
-  // Check if any file is still loading
   const anyFileLoading = files.some((file) => file.loading);
-
-  // Determine the action to display in the title
   const actionTitle = files.some((file) => file.action === "download")
     ? "Download Details"
     : "Upload Details";
@@ -61,17 +58,19 @@ function UploadDownloadPopup({ files, onClose }) {
                   key={index}
                   className="flex items-center justify-between gap-2"
                 >
-                  <p
-                    className="text-md text-start truncate"
-                    style={{
-                      maxWidth: "70%",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {`${file.filename}.${file.extension}`}
-                  </p>
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <p
+                        className="text-md text-start truncate"
+                        style={{ maxWidth: "70%" }}
+                      >
+                        {`${file.filename}.${file.extension}`}
+                      </p>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-fit bg-white p-2 shadow-lg rounded-md">
+                      {`${file.filename}.${file.extension}`}
+                    </HoverCardContent>
+                  </HoverCard>
                   {file.loading ? (
                     <LoadingSpinner className="text-blue-700" />
                   ) : (
@@ -86,11 +85,9 @@ function UploadDownloadPopup({ files, onClose }) {
                         </span>
                       </HoverCardTrigger>
                       <HoverCardContent className="w-40 bg-white p-2 shadow-lg rounded-md">
-                        <span>
-                          {file.status === "success"
-                            ? "Upload successful"
-                            : "Upload failed"}
-                        </span>
+                        {file.status === "success"
+                          ? "Upload successful"
+                          : "Upload failed"}
                       </HoverCardContent>
                     </HoverCard>
                   )}

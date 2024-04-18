@@ -90,6 +90,36 @@ export default function Dashboard() {
     fetchFiles();
   }, []);
 
+  const handleFileDelete = async (filename, extension) => {
+    if (!confirm("Are you sure you want to delete this file?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      // Append the extension to the filename before encoding it for the URL
+      const fullFilename = `${filename}.${extension}`;
+      const url = `${BASE_URL}/delete/${encodeURIComponent(fullFilename)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        fetchFiles(); // Refresh the list after deletion
+        alert("File deleted successfully.");
+      } else {
+        alert("Failed to delete the file.");
+      }
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      alert("An error occurred while deleting the file.");
+    }
+  };
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
@@ -117,18 +147,15 @@ export default function Dashboard() {
 
   const handleFileUpload = async (selectedFiles) => {
     setShowUploadPopup(true);
-    const fileUploadStates = selectedFiles.map((file) => {
-      return {
-        id: uuidv4(),
-        filename: file.name.split(".").slice(0, -1).join("."),
-        extension: file.name.split(".").pop(),
-        loading: true,
-        status: "uploading",
-        action: "upload",
-      };
-    });
+    const fileUploadStates = selectedFiles.map((file) => ({
+      id: uuidv4(),
+      filename: file.name.split(".").slice(0, -1).join("."),
+      extension: file.name.split(".").pop(),
+      loading: true,
+      status: "uploading",
+      action: "upload",
+    }));
 
-    // Append new file upload states to the existing transfers, ensuring that previous transfers are not removed
     setTransfers((prev) => [...prev, ...fileUploadStates]);
 
     selectedFiles.forEach((file) => {
@@ -155,6 +182,8 @@ export default function Dashboard() {
                   : trans
               )
             );
+            // Fetch files after each successful upload
+            fetchFiles();
           } else {
             setTransfers((prev) =>
               prev.map((trans) =>
@@ -166,6 +195,7 @@ export default function Dashboard() {
           }
         })
         .catch((error) => {
+          console.error("Error uploading file:", error);
           setTransfers((prev) =>
             prev.map((trans) =>
               trans.id === matchingState.id
@@ -175,8 +205,6 @@ export default function Dashboard() {
           );
         });
     });
-
-    fetchFiles(); // Optionally, refresh files after all uploads complete, or consider a different approach to optimize user experience
   };
 
   const handleFileDownload = async (filename, extension) => {
@@ -371,7 +399,8 @@ export default function Dashboard() {
                     size={formatBytes(file.size).string}
                     uploaded={formatDate(file.uploaded)}
                     extension={file.ext}
-                    onDownload={handleFileDownload} // Pass the download handler
+                    onDownload={handleFileDownload}
+                    onDelete={handleFileDelete}
                   />
                 ))}
               </TableBody>
