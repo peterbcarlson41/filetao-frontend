@@ -22,8 +22,8 @@ function UploadDownloadPopup({ files, onClose }) {
     : "Upload Details";
 
   return (
-    <div className="fixed right-5 bottom-0 flex justify-center items-end z-50 max-w-md">
-      <Card className="m-4 w-full relative bg-white rounded-b-none">
+    <div className="fixed right-0 bottom-0 flex justify-end items-end z-50 max-w-md">
+      <Card className="m-4 w-full relative bg-white">
         <CardHeader className="flex flex-row justify-between gap-10 items-center border-b h-16 px-2 bg-muted/40">
           <CardTitle className="text-lg pl-4">{actionTitle}</CardTitle>
           <div className="flex gap-1 pb-1.5">
