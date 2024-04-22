@@ -52,7 +52,7 @@ export default function Statistics({ numberOfFiles, storageUsed }) {
           <div className="text-lg font-medium">{`${storageUsedFormatted} of ${storageTotalFormatted} used`}</div>
         </div>
       </CardContent>
-      <div className="p-5 border-t">
+      {/* <div className="p-5 border-t">
         <Button
           size="sm"
           className="w-full"
@@ -60,7 +60,7 @@ export default function Statistics({ numberOfFiles, storageUsed }) {
         >
           Upgrade Storage
         </Button>
-      </div>
+      </div> */}
     </>
   );
 }

@@ -15,6 +15,15 @@ export const AuthProvider = ({ children }) => {
 
   const exemptPaths = ["/", "/login", "/register"];
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("token_expiry");
+    setCurrentUser(null);
+    if (!exemptPaths.includes(location.pathname)) {
+      navigate("/login");
+    }
+  };
+
   const checkTokenExpiration = () => {
     const expiryTime = localStorage.getItem("token_expiry");
     const isExemptPath = exemptPaths.includes(location.pathname);
@@ -25,28 +34,19 @@ export const AuthProvider = ({ children }) => {
     ) {
       alert("Your session has expired. Please log in again.");
       logout();
-      navigate("/login"); // Redirect to login page only if not on exempt pages
-    }
-  };
-
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("token_expiry");
-    setCurrentUser(null);
-    if (!exemptPaths.includes(location.pathname)) {
-      navigate("/login");
     }
   };
 
   useEffect(() => {
-    checkTokenExpiration(); // Moved the check to a separate useEffect to control when it runs
-  }, [location]); // Rerun the effect when location changes
+    const interval = setInterval(() => {
+      checkTokenExpiration();
+    }, 1000 * 60); // Checks every minute
+
+    return () => clearInterval(interval); // Clear the interval when the component unmounts
+  }, [location.pathname]);
 
   useEffect(() => {
+    checkTokenExpiration(); // Initial check on load
     const token = localStorage.getItem("token");
     setCurrentUser(token ? { isLoggedIn: true } : null);
     setIsLoading(false);
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser,
     logout,
     isLoading,
-    getToken,
+    getToken: () => localStorage.getItem("token"),
   };
 
   return (
