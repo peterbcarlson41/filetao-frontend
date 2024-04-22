@@ -11,7 +11,9 @@ const useFileDelete = (fetchFiles) => {
   // This hook uses useCallback to memoize the function, avoiding unnecessary re-creations
   const handleFileDelete = useCallback(
     async (filename, extension) => {
-      if (!confirm("Are you sure you want to delete this file?")) {
+      if (
+        !confirm(`Are you sure you want to delete ${filename}.${extension}?`)
+      ) {
         return;
       }
 
