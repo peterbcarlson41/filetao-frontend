@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext";
 import useFetchFiles from "@/hooks/useFetchFiles";
@@ -13,10 +13,11 @@ import {
   MoreHorizontal,
   DownloadIcon,
   TrashIcon,
+  PlusCircle,
+  ListFilter,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import Tao from "@/components/common/Tao";
-import FileDashboardNav from "@/pages/Dashboard/components/FileDashboardNav";
 import StatisticsCard from "@/components/common/StatisticsCard";
 import UploadDownloadPopup from "./components/UploadDownloadPopup";
 import {
@@ -49,6 +50,9 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [showPopup, setShowPopup] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState({});
+
+  const fileInputRef = useRef(null);
 
   const { logout } = useAuth();
   let navigate = useNavigate();
@@ -60,7 +64,19 @@ export default function Dashboard() {
 
   const handleDownloadClick = async (filename, extension) => {
     setShowPopup(true);
-    await handleFileDownload(filename, extension);
+    const success = await handleFileDownload(filename, extension);
+    if (success) {
+      // Find the file by filename and extension, and uncheck it
+      const fileToUncheck = sortedFiles.find(
+        (file) => file.filename === filename && file.extension === extension
+      );
+      if (fileToUncheck) {
+        setSelectedFiles((prevSelectedFiles) => ({
+          ...prevSelectedFiles,
+          [fileToUncheck.id]: false,
+        }));
+      }
+    }
   };
 
   const handleDeleteClick = async (filename, extension) => {
@@ -101,6 +117,43 @@ export default function Dashboard() {
   const handleClosePopup = () => {
     setShowPopup(false);
     setTransfers([]);
+  };
+
+  const handleSelectFile = (fileId, isSelected) => {
+    setSelectedFiles((prev) => ({
+      ...prev,
+      [fileId]: isSelected,
+    }));
+  };
+
+  // Function to handle bulk delete
+  const handleBulkDelete = async () => {
+    // Filter out selected files
+    const filesToDelete = sortedFiles.filter((file) => selectedFiles[file.id]);
+
+    // Call delete function for each selected file
+    for (const file of filesToDelete) {
+      await handleDeleteClick(file.filename, file.extension);
+    }
+
+    // Clear selection after delete
+    setSelectedFiles({});
+  };
+
+  // Function to handle bulk download
+  const handleBulkDownload = async () => {
+    const filesToDownload = sortedFiles.filter(
+      (file) => selectedFiles[file.id]
+    );
+
+    for (const file of filesToDownload) {
+      await handleDownloadClick(file.filename, file.extension);
+      // Uncheck the checkbox of the downloaded file
+      setSelectedFiles((prevSelectedFiles) => ({
+        ...prevSelectedFiles,
+        [file.id]: false,
+      }));
+    }
   };
 
   return (
@@ -208,16 +261,72 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
-          <FileDashboardNav
-            handleFileChange={handleFileChange}
-            setSortBy={setSortBy}
-          ></FileDashboardNav>
+          <div className="flex flex-row justify-between h-16 gap-2 items-center px-5">
+            <Button
+              onClick={() => document.getElementById("fileInput").click()}
+              className="gap-1"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Upload File
+              </span>
+            </Button>
+            <input
+              id="fileInput"
+              type="file"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: "none" }} // Hide the input if it's visually not needed
+              multiple // If you want to upload multiple files at once
+            />
+            <div className="flex flex-row gap-2">
+              {Object.values(selectedFiles).some(Boolean) && (
+                <div className="flex flex-row gap-2">
+                  <Button variant="outline" size="sm">
+                    <TrashIcon
+                      onClick={handleBulkDelete}
+                      className="h-3.5 w-3.5"
+                    />
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <DownloadIcon
+                      onClick={handleBulkDownload}
+                      className="h-3.5 w-3.5"
+                    />
+                  </Button>
+                </div>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1">
+                    <ListFilter className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                      Sort
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => setSortBy("name")}>
+                    Name
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setSortBy("date")}>
+                    Date
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setSortBy("size")}>
+                    Size
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
           <main className="flex flex-1 flex-col gap-4 px-4 pb-4 overflow-hidden">
             <ScrollArea className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="hidden md:table-cell"></TableHead>
+                    <TableHead className="table-cell"></TableHead>
                     <TableHead className="">Name</TableHead>
                     <TableHead className="hidden md:table-cell">Size</TableHead>
                     <TableHead className="hidden md:table-cell">
@@ -228,9 +337,14 @@ export default function Dashboard() {
                 </TableHeader>
                 <TableBody>
                   {sortedFiles.map((file) => (
-                    <TableRow>
-                      <TableCell className="text-left hidden md:table-cell">
-                        <Checkbox />
+                    <TableRow key={file.id}>
+                      <TableCell className="text-left">
+                        <Checkbox
+                          checked={selectedFiles[file.id]}
+                          onCheckedChange={(checked) =>
+                            handleSelectFile(file.id, checked)
+                          }
+                        />
                       </TableCell>
                       <TableCell className="text-left table-cell font-medium">
                         {file.filename}

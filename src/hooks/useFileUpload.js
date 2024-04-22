@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@/components/auth/AuthContext";
 
 const useFileUpload = (fetchFiles) => {
   const [transfers, setTransfers] = useState([]);
 
   // Retrieve the base API URL from environment variables
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
+
+  const { getToken } = useAuth();
+  const token = getToken();
 
   const handleFileUpload = async (selectedFiles) => {
     const fileUploadStates = selectedFiles.map((file) => ({
@@ -33,7 +37,7 @@ const useFileUpload = (fetchFiles) => {
 
       fetch(`${BASE_URL}/uploadfile`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       })
         .then((response) => {

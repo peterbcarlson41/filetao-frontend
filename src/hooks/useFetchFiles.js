@@ -1,6 +1,7 @@
 // hooks/useFetchFiles.js
 
 import { useState, useCallback } from "react";
+import { useAuth } from "@/components/auth/AuthContext";
 
 const useFetchFiles = () => {
   const [files, setFiles] = useState([]);
@@ -10,11 +11,11 @@ const useFetchFiles = () => {
   // Retrieve the base API URL from environment variables
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
+  const { getToken } = useAuth();
+  const authToken = getToken();
+
   // Function to fetch files
   const fetchFiles = useCallback(async () => {
-    // Retrieve the auth token from local storage
-    const authToken = localStorage.getItem("token");
-
     if (!authToken) {
       console.error("No auth token found");
       return;

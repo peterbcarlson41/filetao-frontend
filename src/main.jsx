@@ -13,8 +13,8 @@ import Statistics from "./components/common/StatisticsCard";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="login" element={<Login />} />
@@ -22,12 +22,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<MyFiles />} />
           </Route>
-          <Route element={<ProtectedRoute />}>
-            <Route path="statistics" element={<Statistics />} />
-          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

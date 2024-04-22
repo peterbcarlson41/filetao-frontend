@@ -59,9 +59,18 @@ export default function LoginForm() {
       const responseData = await response.json();
 
       if (response.ok) {
+        const expiresIn = 900000; // 15 minutes in milliseconds
+        const expiryTime = Date.now() + expiresIn;
         localStorage.setItem("token", responseData.access_token);
+        localStorage.setItem("token_expiry", expiryTime.toString()); // Store expiry time
         setCurrentUser({ isLoggedIn: true });
         navigate("/dashboard");
+
+        // Set a timer to automatically remove the token after 15 minutes
+        setTimeout(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("token_expiry");
+        }, expiresIn);
       } else {
         form.setError("password", {
           type: "manual",
