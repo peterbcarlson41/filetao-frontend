@@ -134,13 +134,13 @@ export default function Dashboard() {
   };
 
   // Function to handle bulk download
-  const handleBulkDownload = async () => {
+  const handleBulkDownload = () => {
     const filesToDownload = sortedFiles.filter(
       (file) => selectedFiles[file.id]
     );
 
     for (const file of filesToDownload) {
-      await handleDownloadClick(file.filename, file.extension);
+      handleDownloadClick(file);
       // Uncheck the checkbox of the downloaded file
       setSelectedFiles((prevSelectedFiles) => ({
         ...prevSelectedFiles,
