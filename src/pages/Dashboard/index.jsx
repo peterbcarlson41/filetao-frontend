@@ -347,7 +347,7 @@ export default function Dashboard() {
                         />
                       </TableCell>
                       <TableCell className="text-left table-cell font-medium">
-                        {file.filename}
+                        {file.filename}.{file.ext}
                       </TableCell>
                       <TableCell className="text-left hidden md:table-cell">
                         {formatBytes(file.size).string}
