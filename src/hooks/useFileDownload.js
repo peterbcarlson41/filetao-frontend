@@ -19,6 +19,7 @@ const useFileDownload = () => {
       extension: extension,
       loading: true,
       status: "downloading",
+      action: "download",
     };
 
     setDownloads((prev) => [...prev, newDownload]);

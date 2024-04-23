@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { LoadingSpinner } from "@/components/common/Spinner";
 
 import { formatBytes } from "@/utils/formatBytes";
 import { formatDate } from "@/utils/formatDate";
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState("name");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState({});
+  const [downloadingFiles, setDownloadingFiles] = useState({});
 
   const fileInputRef = useRef(null);
 
@@ -61,21 +63,12 @@ export default function Dashboard() {
     logout();
     navigate("/");
   };
-
-  const handleDownloadClick = async (filename, extension) => {
-    setShowPopup(true);
-    const success = await handleFileDownload(filename, extension);
+  const handleDownloadClick = async (file) => {
+    setDownloadingFiles((prev) => ({ ...prev, [file.id]: true }));
+    const success = await handleFileDownload(file.filename, file.ext);
+    setDownloadingFiles((prev) => ({ ...prev, [file.id]: false }));
     if (success) {
-      // Find the file by filename and extension, and uncheck it
-      const fileToUncheck = sortedFiles.find(
-        (file) => file.filename === filename && file.extension === extension
-      );
-      if (fileToUncheck) {
-        setSelectedFiles((prevSelectedFiles) => ({
-          ...prevSelectedFiles,
-          [fileToUncheck.id]: false,
-        }));
-      }
+      setSelectedFiles((prev) => ({ ...prev, [file.id]: false }));
     }
   };
 
@@ -359,18 +352,21 @@ export default function Dashboard() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
-                              className="rounded-full w-8 h-8"
+                              className="rounded-full w-8 h-8 disabled:opacity-100"
                               size="icon"
                               variant="ghost"
+                              disabled={downloadingFiles[file.id]}
                             >
-                              <MoreHorizontal className="w-4 h-4" />
+                              {downloadingFiles[file.id] ? (
+                                <LoadingSpinner className="text-blue-700" />
+                              ) : (
+                                <MoreHorizontal />
+                              )}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleDownloadClick(file.filename, file.ext)
-                              }
+                              onClick={() => handleDownloadClick(file)}
                             >
                               <DownloadIcon className="mr-2 h-4 w-4" />
                               Download
