@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/utils/formatBytes";
 
 export default function Statistics({ numberOfFiles, storageUsed }) {
-  const navigate = useNavigate();
-
   // Constants for total storage and formatting
   const storageTotal = 53687091200; // 50 GB in bytes
   const storageTotalFormatted = formatBytes(storageTotal).string;
