@@ -358,9 +358,9 @@ export default function Dashboard() {
                               disabled={downloadingFiles[file.id]}
                             >
                               {downloadingFiles[file.id] ? (
-                                <LoadingSpinner className="text-blue-700" />
+                                <LoadingSpinner className="text-blue-700 h-6 w-6" />
                               ) : (
-                                <MoreHorizontal />
+                                <MoreHorizontal className="h-6 w-6" />
                               )}
                             </Button>
                           </DropdownMenuTrigger>
