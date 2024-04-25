@@ -11,12 +11,6 @@ const useFileDelete = (fetchFiles) => {
   // This hook uses useCallback to memoize the function, avoiding unnecessary re-creations
   const handleFileDelete = useCallback(
     async (filename, extension) => {
-      if (
-        !confirm(`Are you sure you want to delete ${filename}.${extension}?`)
-      ) {
-        return;
-      }
-
       // Retrieve the base API URL from environment variables
       const BASE_URL = import.meta.env.VITE_APP_API_URL;
 

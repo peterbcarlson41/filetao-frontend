@@ -9,7 +9,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-function UploadDownloadPopup({ files, onClose }) {
+function UploadPopup({ files, onClose }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const toggleExpand = () => {
@@ -17,15 +17,12 @@ function UploadDownloadPopup({ files, onClose }) {
   };
 
   const anyFileLoading = files.some((file) => file.loading);
-  const actionTitle = files.some((file) => file.action === "download")
-    ? "Download Details"
-    : "Upload Details";
 
   return (
     <div className="fixed right-0 bottom-0 flex justify-end items-end z-50 max-w-md">
       <Card className="m-4 w-full relative bg-white">
         <CardHeader className="flex flex-row justify-between gap-10 items-center border-b h-16 px-2 bg-muted/40">
-          <CardTitle className="text-lg pl-4">{actionTitle}</CardTitle>
+          <CardTitle className="text-lg pl-4">Upload Details</CardTitle>
           <div className="flex gap-1 pb-1.5">
             <Button
               className="rounded-full"
@@ -101,4 +98,4 @@ function UploadDownloadPopup({ files, onClose }) {
   );
 }
 
-export default UploadDownloadPopup;
+export default UploadPopup;

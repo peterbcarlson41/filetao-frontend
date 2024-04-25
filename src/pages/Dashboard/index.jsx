@@ -19,7 +19,7 @@ import {
 import { FaGithub } from "react-icons/fa";
 import Tao from "@/components/common/Tao";
 import StatisticsCard from "@/components/common/StatisticsCard";
-import UploadDownloadPopup from "./components/UploadDownloadPopup";
+import UploadPopup from "./components/UploadPopup";
 import {
   Table,
   TableHeader,
@@ -28,6 +28,17 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -81,15 +92,12 @@ export default function Dashboard() {
   // prettier-ignore
   const { transfers: uploadTransfers, handleFileUpload, setTransfers } = useFileUpload(fetchFiles);
   // prettier-ignore
-  const { downloads: downloadTransfers, handleFileDownload } = useFileDownload();
+  const { handleFileDownload } = useFileDownload();
   const handleFileDelete = useFileDelete(fetchFiles);
 
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
-
-  // Combine uploads and downloads into a single state for the popup
-  const allTransfers = [...uploadTransfers, ...downloadTransfers];
 
   const sortedFiles = useFileSearchAndSort(files, searchTerm, sortBy);
 
@@ -119,8 +127,8 @@ export default function Dashboard() {
     }));
   };
 
-  // Function to handle bulk delete
-  const handleBulkDelete = async () => {
+  // Function to handle confirmation action in the alert dialog
+  const handleConfirmDelete = async () => {
     // Filter out selected files
     const filesToDelete = sortedFiles.filter((file) => selectedFiles[file.id]);
 
@@ -129,8 +137,22 @@ export default function Dashboard() {
       await handleDeleteClick(file.filename, file.extension);
     }
 
-    // Clear selection after delete
-    setSelectedFiles({});
+    // Create a new object with all values set to false
+    const newSelectedFiles = {};
+    for (const fileId in selectedFiles) {
+      newSelectedFiles[fileId] = false;
+    }
+    setSelectedFiles(newSelectedFiles);
+  };
+
+  // Function to handle cancellation action in the alert dialog
+  const handleCancelDelete = () => {
+    // Create a new object with all values set to false
+    const newSelectedFiles = {};
+    for (const fileId in selectedFiles) {
+      newSelectedFiles[fileId] = false;
+    }
+    setSelectedFiles(newSelectedFiles);
   };
 
   // Function to handle bulk download
@@ -152,7 +174,7 @@ export default function Dashboard() {
   return (
     <>
       {showPopup && (
-        <UploadDownloadPopup files={allTransfers} onClose={handleClosePopup} />
+        <UploadPopup files={uploadTransfers} onClose={handleClosePopup} />
       )}
       <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
         <div className="hidden border-r bg-muted/40 md:block">
@@ -255,32 +277,62 @@ export default function Dashboard() {
             </DropdownMenu>
           </header>
           <div className="flex flex-row justify-between h-16 gap-2 items-center px-5">
-            <Button
-              onClick={() => document.getElementById("fileInput").click()}
-              className="gap-1"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Upload File
-              </span>
-            </Button>
-            <input
-              id="fileInput"
-              type="file"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              style={{ display: "none" }} // Hide the input if it's visually not needed
-              multiple // If you want to upload multiple files at once
-            />
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-2 items-center">
+              <Button
+                onClick={() => document.getElementById("fileInput").click()}
+                className="gap-1"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Upload File
+                </span>
+              </Button>
+              <input
+                id="fileInput"
+                type="file"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                style={{ display: "none" }} // Hide the input if it's visually not needed
+                multiple // If you want to upload multiple files at once
+              />
               {Object.values(selectedFiles).some(Boolean) && (
                 <div className="flex flex-row gap-2">
-                  <Button variant="outline" size="sm">
-                    <TrashIcon
-                      onClick={handleBulkDelete}
-                      className="h-3.5 w-3.5"
-                    />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <TrashIcon className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete the following files?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="space-y-2">
+                        {sortedFiles
+                          .filter((file) => selectedFiles[file.id]) // Filter files based on selectedFiles state
+                          .map((file) => (
+                            <p key={file.id}>
+                              <span className="font-medium">
+                                {file.filename}
+                              </span>
+                              .{file.ext}
+                            </p>
+                          ))}
+                      </div>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleCancelDelete}>
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmDelete}>
+                          Continue
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Button variant="outline" size="sm">
                     <DownloadIcon
                       onClick={handleBulkDownload}
@@ -289,30 +341,30 @@ export default function Dashboard() {
                   </Button>
                 </div>
               )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <ListFilter className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                      Sort
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => setSortBy("name")}>
-                    Name
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setSortBy("date")}>
-                    Date
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setSortBy("size")}>
-                    Size
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <ListFilter className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Sort
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => setSortBy("name")}>
+                  Name
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setSortBy("date")}>
+                  Date
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setSortBy("size")}>
+                  Size
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <main className="flex flex-1 flex-col gap-4 px-4 pb-4 overflow-hidden">
             <ScrollArea className="rounded-md border">
