@@ -3,7 +3,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import Tao from "@/components/common/Tao";
+import Tao from "@/components/common/Tao.jsx";
 
 export default function Navbar() {
   const { currentUser, logout } = useAuth();
@@ -30,7 +30,7 @@ export default function Navbar() {
             )}
           </button>
           <a className="sm:flex hidden items-center space-x-2" href="/">
-            <Tao />
+            <Tao className="h-10 w-10" />
           </a>
         </div>
 
@@ -40,7 +40,7 @@ export default function Navbar() {
           } md:hidden absolute top-full left-0 bg-white dark:bg-gray-800 w-full px-4 py-2 border-b flex-col items-start`}
         >
           <a className="flex items-center space-x-2" href="/">
-            <Tao />
+            <Tao className="h-10 w-10" />
           </a>
           {currentUser && (
             <>
