@@ -186,8 +186,7 @@ export default function Dashboard() {
           <div className="flex h-full justify-between max-h-screen flex-col gap-2">
             <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
               <a href="/" className="flex items-center gap-2 font-semibold">
-                <Tao className="h-6 w-6" />
-                <span className="">FileTao</span>
+                <Tao className="h-10 w-10" />
               </a>
             </div>
             <div className="p-4">
@@ -228,13 +227,15 @@ export default function Dashboard() {
                     href="#"
                     className="flex items-center gap-2 text-lg font-semibold"
                   >
-                    <Tao className="h-6 w-6" />
-                    <span className="sr-only">FileTao</span>
+                    <Tao className="h-10 w-10" />
                   </a>
                 </nav>
-                <div className="">
+                <div className="my-auto">
                   <Card>
-                    <StatisticsCard />
+                    <StatisticsCard
+                      numberOfFiles={numberOfFiles}
+                      storageUsed={storageUsed}
+                    />
                   </Card>
                 </div>
                 <footer>
