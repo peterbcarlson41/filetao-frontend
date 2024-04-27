@@ -1,55 +1,74 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../components/auth/AuthContext.jsx";
+import { useAuth } from "@/components/auth/AuthContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/common/Navbar";
+import {
+  Form,
+  FormControl,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Error } from "@/components/common/Error";
-import Navbar from "@/components/common/navbar";
+
+// Define the schema using Zod for form validation
+const registrationSchema = z.object({
+  username: z.string().min(2, "Username must be at least 2 characters."),
+  password: z.string().min(6, "Password must be at least 6 characters."),
+});
 
 export default function RegisterForm() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setCurrentUser } = useContext(AuthContext);
+  const { setCurrentUser } = useAuth();
+  const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-  const registerUser = async (username, password) => {
+  const form = useForm({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/register", {
+      const url = `${BASE_URL}/register`;
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(data),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
 
       if (response.ok) {
         navigate("/login");
       } else {
-        setError(`Registration failed: ${data.detail || "Please try again."}`);
+        form.setError("username", {
+          type: "manual",
+          message:
+            responseData.detail || "Registration failed, please try again.",
+        });
       }
     } catch (error) {
-      setError(
-        `Registration failed: ${error.message || "Unexpected error occurred."}`
-      );
+      form.setError("username", {
+        type: "manual",
+        message: "Network error, please try again later.",
+      });
     }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-    await registerUser(username, password);
   };
 
   return (
@@ -57,44 +76,54 @@ export default function RegisterForm() {
       <Navbar />
       <div className="flex justify-center items-center h-screen px-5">
         <Card className="w-full max-w-sm">
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle className="text-2xl">Register</CardTitle>
-              <CardDescription>
-                Enter a username and password to register.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="user1"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="off"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              {error && <Error message={error} />}
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full">
-                Register
-              </Button>
-            </CardFooter>
-          </form>
+          <CardHeader>
+            <CardTitle className="text-2xl">Register</CardTitle>
+            <CardDescription>
+              Enter a username and password to register.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col space-y-2"
+              >
+                <FormItem>
+                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter your username"
+                      {...form.register("username")}
+                    />
+                  </FormControl>
+                  <div style={{ minHeight: "20px" }}>
+                    <FormMessage>
+                      {form.formState.errors.username?.message}
+                    </FormMessage>
+                  </div>
+                </FormItem>
+                <FormItem>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      {...form.register("password")}
+                    />
+                  </FormControl>
+                  <div style={{ minHeight: "20px" }}>
+                    <FormMessage>
+                      {form.formState.errors.password?.message}
+                    </FormMessage>
+                  </div>
+                </FormItem>
+                <Button type="submit">Register</Button>
+              </form>
+            </Form>
+          </CardContent>
         </Card>
       </div>
     </>
