@@ -74,6 +74,11 @@ export default function Dashboard() {
     logout();
     navigate("/");
   };
+
+  const handleNetworkStatistics = () => {
+    window.location.href = "http://localhost:3000/?page=0#miners";
+  };
+
   const handleDownloadClick = async (file) => {
     setDownloadingFiles((prev) => ({ ...prev, [file.id]: true }));
     const success = await handleFileDownload(file.filename, file.ext);
@@ -272,6 +277,9 @@ export default function Dashboard() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleNetworkStatistics}>
+                  Network Statistics
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
