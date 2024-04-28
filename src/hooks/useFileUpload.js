@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/components/auth/AuthContext";
+import { formatBytes } from "@/utils/formatBytes";
 
 const useFileUpload = (fetchFiles) => {
   const [transfers, setTransfers] = useState([]);
@@ -26,6 +27,7 @@ const useFileUpload = (fetchFiles) => {
     setTransfers((prev) => [...prev, ...fileUploadStates]);
 
     selectedFiles.forEach(async (file) => {
+      console.log(file);
       const formData = new FormData();
       formData.append("file", file);
 
@@ -34,6 +36,25 @@ const useFileUpload = (fetchFiles) => {
           f.filename === file.name.split(".").slice(0, -1).join(".") &&
           f.extension === file.name.split(".").pop()
       );
+
+      //max file size from env variables to make it easy to change
+      const maxFileSize = import.meta.env.VITE_MAX_FILE_SIZE;
+
+      //Check that file size doesn't exceed the maximum allowed
+      if (file.size > maxFileSize) {
+        console.log("Max file size exceeded");
+        setTransfers((prev) =>
+          prev.map((trans) =>
+            trans.id === matchingState.id
+              ? { ...trans, loading: false, status: "failed" }
+              : trans
+          )
+        );
+        alert(
+          `Maximum file size of ${formatBytes(maxFileSize).string} exceeded.`
+        );
+        return;
+      }
 
       fetch(`${BASE_URL}/uploadfile`, {
         method: "POST",
