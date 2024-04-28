@@ -75,8 +75,10 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const statisticsURL = import.meta.env.VITE_STATISTICS_URL;
+
   const handleNetworkStatistics = () => {
-    window.location.href = "http://localhost:3000/?page=0#miners";
+    window.location.href = statisticsURL;
   };
 
   const handleDownloadClick = async (file) => {
