@@ -142,7 +142,7 @@ export default function Dashboard() {
 
     // Call delete function for each selected file
     for (const file of filesToDelete) {
-      await handleDeleteClick(file.filename, file.extension);
+      await handleDeleteClick(file.filename, file.ext);
     }
 
     // Create a new object with all values set to false
