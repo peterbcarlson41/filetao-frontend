@@ -15,8 +15,10 @@ export default function Navbar() {
     navigate("/");
   };
 
+  const statisticsURL = import.meta.env.VITE_STATISTICS_URL;
+
   return (
-    <header className="fixed top-0 left-0 w-full px-4 h-14 border-b bg-gray-100 dark:bg-gray-950 border-gray-200/40 dark:border-gray-800/40 z-50">
+    <header className="fixed top-0 left-0 w-full px-4 h-14 border-b bg-gray-100 border-gray-200/40 z-50">
       <div className="flex items-center justify-start h-full">
         <div className="flex items-center">
           <button
@@ -37,19 +39,26 @@ export default function Navbar() {
         <div
           className={`${
             isMenuOpen ? "flex" : "hidden"
-          } md:hidden absolute top-full left-0 bg-white dark:bg-gray-800 w-full px-4 py-2 border-b flex-col items-start`}
+          } md:hidden absolute top-full left-0 bg-white w-full px-4 py-2 border-b flex-col items-start`}
         >
           <a className="flex items-center space-x-2" href="/">
             <Tao className="h-10 w-10" />
           </a>
           {currentUser && (
             <>
-              <a href="/dashboard" className="py-2 text-left">
+              <a href="/dashboard" className="py-2 text-gray-900">
                 Dashboard
               </a>
             </>
           )}
-          <a href="#" className="py-2 text-left">
+          <a href={statisticsURL} className="text-gray-900">
+            Statistics
+          </a>
+          <a
+            href="https://github.com/ifrit98/storage-subnet/blob/main/README.md"
+            target="_blank"
+            className="text-gray-900"
+          >
             About
           </a>
         </div>
@@ -59,16 +68,19 @@ export default function Navbar() {
             <>
               <a
                 href="/dashboard"
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                className="text-gray-500 hover:text-gray-900"
               >
                 Dashboard
               </a>
             </>
           )}
+          <a href={statisticsURL} className="text-gray-500 hover:text-gray-900">
+            Statistics
+          </a>
           <a
             href="https://github.com/ifrit98/storage-subnet/blob/main/README.md"
             target="_blank"
-            className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+            className="text-gray-500 hover:text-gray-900"
           >
             About
           </a>
