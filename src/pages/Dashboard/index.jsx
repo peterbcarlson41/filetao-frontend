@@ -95,7 +95,8 @@ export default function Dashboard() {
   };
 
   //Get all of the API calls from hooks
-  const { files, fetchFiles, numberOfFiles, storageUsed } = useFetchFiles();
+  const { files, fetchFiles, numberOfFiles, storageUsed, userCap } =
+    useFetchFiles();
   // prettier-ignore
   const { transfers: uploadTransfers, handleFileUpload, setTransfers } = useFileUpload(fetchFiles);
   // prettier-ignore
@@ -196,6 +197,7 @@ export default function Dashboard() {
                 <StatisticsCard
                   numberOfFiles={numberOfFiles}
                   storageUsed={storageUsed}
+                  userCap={userCap}
                 />
               </Card>
             </div>

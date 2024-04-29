@@ -7,6 +7,7 @@ const useFetchFiles = () => {
   const [files, setFiles] = useState([]);
   const [numberOfFiles, setNumberOfFiles] = useState(0);
   const [storageUsed, setStorageUsed] = useState(0);
+  const [userCap, setUserCap] = useState(0);
 
   // Retrieve the base API URL from environment variables
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
@@ -42,12 +43,14 @@ const useFetchFiles = () => {
       setNumberOfFiles(data.stats.filecount);
       // Convert storage to GB assuming the value is in bytes
       setStorageUsed(data.stats.storage);
+      // get user capacity
+      setUserCap(data.stats.usercap);
     } else {
       console.error("Failed to fetch files");
     }
   }, [BASE_URL]);
 
-  return { files, fetchFiles, numberOfFiles, storageUsed };
+  return { files, fetchFiles, numberOfFiles, storageUsed, userCap };
 };
 
 export default useFetchFiles;

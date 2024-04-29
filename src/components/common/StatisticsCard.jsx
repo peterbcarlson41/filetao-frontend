@@ -13,9 +13,9 @@ import { Button } from "@/components/ui/button";
 
 import { formatBytes } from "@/utils/formatBytes";
 
-export default function Statistics({ numberOfFiles, storageUsed }) {
+export default function Statistics({ numberOfFiles, storageUsed, userCap }) {
   // Constants for total storage and formatting
-  const storageTotal = 53687091200; // 50 GB in bytes
+  const storageTotal = userCap;
   const storageTotalFormatted = formatBytes(storageTotal).string;
   const storagePercentage = (storageUsed / storageTotal) * 100;
   const storageUsedFormatted = formatBytes(storageUsed).string;
