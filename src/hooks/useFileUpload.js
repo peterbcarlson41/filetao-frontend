@@ -73,13 +73,16 @@ const useFileUpload = (fetchFiles) => {
             // Fetch files after each successful upload
             fetchFiles();
           } else {
-            setTransfers((prev) =>
-              prev.map((trans) =>
-                trans.id === matchingState.id
-                  ? { ...trans, loading: false, status: "failed" }
-                  : trans
-              )
-            );
+            response.json().then((data) => {
+              setTransfers((prev) =>
+                prev.map((trans) =>
+                  trans.id === matchingState.id
+                    ? { ...trans, loading: false, status: "failed" }
+                    : trans
+                )
+              );
+              alert(data.detail);
+            });
           }
         })
         .catch((error) => {
