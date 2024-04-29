@@ -27,7 +27,6 @@ const useFileUpload = (fetchFiles) => {
     setTransfers((prev) => [...prev, ...fileUploadStates]);
 
     selectedFiles.forEach(async (file) => {
-      console.log(file);
       const formData = new FormData();
       formData.append("file", file);
 
@@ -42,7 +41,6 @@ const useFileUpload = (fetchFiles) => {
 
       //Check that file size doesn't exceed the maximum allowed
       if (file.size > maxFileSize) {
-        console.log("Max file size exceeded");
         setTransfers((prev) =>
           prev.map((trans) =>
             trans.id === matchingState.id
