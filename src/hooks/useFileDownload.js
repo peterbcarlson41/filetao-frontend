@@ -25,7 +25,7 @@ const useFileDownload = () => {
     setDownloads((prev) => [...prev, newDownload]);
 
     try {
-      const url = `${BASE_URL}/retrieve/${encodeURIComponent(filename)}/`;
+      const url = `${BASE_URL}/retrieve/${encodeURIComponent(filename)}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
