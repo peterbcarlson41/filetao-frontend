@@ -91,10 +91,10 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteClick = async (filename, extension) => {
-    setDeletingFiles((prev) => ({ ...prev, [fileId]: true }));
-    await handleFileDelete(filename, extension);
-    setDeletingFiles((prev) => ({ ...prev, [fileId]: false }));
+  const handleDeleteClick = async (file) => {
+    setDeletingFiles((prev) => ({ ...prev, [file.id]: true }));
+    await handleFileDelete(file.filename, file.ext);
+    setDeletingFiles((prev) => ({ ...prev, [file.id]: false }));
   };
 
   //control row for delete
@@ -148,11 +148,16 @@ export default function Dashboard() {
     // Filter out selected files
     const filesToDelete = sortedFiles.filter((file) => selectedFiles[file.id]);
 
+    // Set all deletingFiles to true
+    const deletingFilesUpdate = {};
+    for (const file of filesToDelete) {
+      deletingFilesUpdate[file.id] = true;
+    }
+    setDeletingFiles((prev) => ({ ...prev, ...deletingFilesUpdate }));
+
     // Call delete function for each selected file
     for (const file of filesToDelete) {
-      setDeletingFiles((prev) => ({ ...prev, [file.id]: true }));
-      await handleDeleteClick(file.filename, file.ext);
-      setDeletingFiles((prev) => ({ ...prev, [file.id]: false }));
+      await handleDeleteClick(file);
     }
 
     // Create a new object with all values set to false
