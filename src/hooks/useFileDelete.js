@@ -8,6 +8,8 @@ const useFileDelete = (fetchFiles) => {
   const { getToken } = useAuth();
   const token = getToken();
 
+  const [deletes, setDeletes] = useState([]);
+
   // This hook uses useCallback to memoize the function, avoiding unnecessary re-creations
   const handleFileDelete = useCallback(
     async (filename, extension) => {

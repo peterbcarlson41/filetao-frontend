@@ -94,6 +94,11 @@ export default function Dashboard() {
     await handleFileDelete(filename, extension);
   };
 
+  //control row for delete
+  const handleRowClassName = (fileId) => {
+    return downloadingFiles[fileId] ? "opacity-50 pointer-events-none" : "";
+  };
+
   //Get all of the API calls from hooks
   const { files, fetchFiles, numberOfFiles, storageUsed, userCap } =
     useFetchFiles();
@@ -396,7 +401,10 @@ export default function Dashboard() {
                 </TableHeader>
                 <TableBody>
                   {sortedFiles.map((file) => (
-                    <TableRow key={file.id}>
+                    <TableRow
+                      key={file.id}
+                      className={handleRowClassName(file.id)}
+                    >
                       <TableCell className="text-left">
                         <Checkbox
                           checked={selectedFiles[file.id]}
