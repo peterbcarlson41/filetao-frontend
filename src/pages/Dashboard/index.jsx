@@ -64,6 +64,7 @@ export default function Dashboard() {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState({});
   const [downloadingFiles, setDownloadingFiles] = useState({});
+  const [deletingFiles, setDeletingFiles] = useState({});
 
   const fileInputRef = useRef(null);
 
@@ -91,12 +92,14 @@ export default function Dashboard() {
   };
 
   const handleDeleteClick = async (filename, extension) => {
+    setDeletingFiles((prev) => ({ ...prev, [fileId]: true }));
     await handleFileDelete(filename, extension);
+    setDeletingFiles((prev) => ({ ...prev, [fileId]: false }));
   };
 
   //control row for delete
   const handleRowClassName = (fileId) => {
-    return downloadingFiles[fileId] ? "opacity-50 pointer-events-none" : "";
+    return deletingFiles[fileId] ? "opacity-50 pointer-events-none" : "";
   };
 
   //Get all of the API calls from hooks
@@ -147,7 +150,9 @@ export default function Dashboard() {
 
     // Call delete function for each selected file
     for (const file of filesToDelete) {
+      setDeletingFiles((prev) => ({ ...prev, [file.id]: true }));
       await handleDeleteClick(file.filename, file.ext);
+      setDeletingFiles((prev) => ({ ...prev, [file.id]: false }));
     }
 
     // Create a new object with all values set to false
@@ -429,7 +434,7 @@ export default function Dashboard() {
                               className="rounded-full w-8 h-8 disabled:opacity-100"
                               size="icon"
                               variant="ghost"
-                              disabled={downloadingFiles[file.id]}
+                              disabled={deletingFiles[file.id]}
                             >
                               {downloadingFiles[file.id] ? (
                                 <LoadingSpinner className="text-blue-700 h-6 w-6" />
