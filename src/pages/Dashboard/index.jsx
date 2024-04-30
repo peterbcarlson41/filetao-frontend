@@ -91,6 +91,11 @@ export default function Dashboard() {
   };
 
   const handleDeleteClick = async (filename, extension) => {
+    setSortedFiles((prevSortedFiles) =>
+      prevSortedFiles.filter(
+        (file) => !(file.filename === filename && file.ext === extension)
+      )
+    );
     await handleFileDelete(filename, extension);
   };
 
@@ -148,6 +153,12 @@ export default function Dashboard() {
     // Call delete function for each selected file
     for (const file of filesToDelete) {
       await handleDeleteClick(file.filename, file.ext);
+
+      setSortedFiles((prevSortedFiles) =>
+        prevSortedFiles.filter(
+          (f) => !(f.filename === file.filename && f.ext === file.ext)
+        )
+      );
     }
 
     // Create a new object with all values set to false
