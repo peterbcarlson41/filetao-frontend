@@ -34,7 +34,7 @@ const useFetchFiles = () => {
       const data = await response.json();
       const filesArray = Object.entries(data.file_metadata).map(
         ([key, value]) => {
-          return { id: key, ...JSON.parse(value) };
+          return { id: key, ...value };
         }
       );
       setFiles(filesArray);
