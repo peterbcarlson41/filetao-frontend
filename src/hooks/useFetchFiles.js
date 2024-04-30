@@ -22,7 +22,7 @@ const useFetchFiles = () => {
       return;
     }
 
-    const url = `${BASE_URL}/user_data/`;
+    const url = `${BASE_URL}/user_data`;
 
     const response = await fetch(url, {
       headers: {
