@@ -411,7 +411,10 @@ export default function Dashboard() {
                 </TableHeader>
                 <TableBody>
                   {sortedFiles.map((file) => (
-                    <TableRow key={file.id}>
+                    <TableRow
+                      key={file.id}
+                      className={handleRowClassName(file.id)}
+                    >
                       <TableCell className="text-left">
                         <Checkbox
                           checked={selectedFiles[file.id]}
