@@ -64,6 +64,7 @@ export default function Dashboard() {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState({});
   const [downloadingFiles, setDownloadingFiles] = useState({});
+  const [deletingFiles, setDeletingFiles] = useState({});
 
   const fileInputRef = useRef(null);
 
