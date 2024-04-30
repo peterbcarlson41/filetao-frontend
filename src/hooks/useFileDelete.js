@@ -16,7 +16,7 @@ const useFileDelete = (fetchFiles) => {
 
       try {
         const fullFilename = `${filename}.${extension}`;
-        const url = `${BASE_URL}/delete/${encodeURIComponent(fullFilename)}`;
+        const url = `${BASE_URL}/delete/${encodeURIComponent(fullFilename)}/`;
 
         const response = await fetch(url, {
           method: "GET",

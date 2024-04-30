@@ -54,7 +54,7 @@ const useFileUpload = (fetchFiles) => {
         return;
       }
 
-      fetch(`${BASE_URL}/uploadfile`, {
+      fetch(`${BASE_URL}/uploadfile/`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

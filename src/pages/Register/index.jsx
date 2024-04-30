@@ -43,7 +43,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data) => {
     try {
-      const url = `${BASE_URL}/register`;
+      const url = `${BASE_URL}/register/`;
       const response = await fetch(url, {
         method: "POST",
         headers: {

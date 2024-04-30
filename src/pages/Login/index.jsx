@@ -48,7 +48,7 @@ export default function LoginForm() {
       params.append("username", data.username);
       params.append("password", data.password);
 
-      const response = await fetch(`${BASE_URL}/token`, {
+      const response = await fetch(`${BASE_URL}/token/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
