@@ -9,10 +9,12 @@ import Register from "./pages/Register/index";
 import NotFound from "./pages/NotFound/index";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyFiles from "./pages/Dashboard/index";
+import { Analytics } from "@vercel/analytics/react"
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
+      <Analytics/>
       <AuthProvider>
         <Routes>
           <Route path="/" element={<App />} />
