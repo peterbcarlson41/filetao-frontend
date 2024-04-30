@@ -1,21 +1,22 @@
 export const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const month = date.getMonth() + 1; // getMonth() is zero-based
-  const day = date.getDate();
-  const year = date.getFullYear();
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
+  // Step 1: Extract UTC Date
+  const utcDate = new Date(dateString);
 
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
+  // Step 2: Get Time Zone Offset
+  const offsetMinutes = utcDate.getTimezoneOffset();
 
-  // Format minutes to always have at least one digit, no leading zero.
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  // Step 3: Calculate Local Time
+  const localTime = new Date(utcDate.getTime() - offsetMinutes * 60 * 1000);
 
-  // Format month and day without padding zeros
-  const formattedMonth = month;
-  const formattedDay = day;
+  // Format Local Time
+  const year = localTime.getFullYear();
+  const month = String(localTime.getMonth() + 1);
+  const day = String(localTime.getDate()).padStart(2, "0");
+  const hours = String(localTime.getHours() % 12 || 12);
+  const minutes = String(localTime.getMinutes()).padStart(2, "0");
+  const ampm = localTime.getHours() >= 12 ? "pm" : "am";
 
-  return `${formattedMonth}/${formattedDay}/${year} ${hours}:${formattedMinutes} ${ampm}`;
+  const formattedTimeString = `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
+
+  return formattedTimeString;
 };
