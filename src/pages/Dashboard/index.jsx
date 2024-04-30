@@ -83,23 +83,46 @@ export default function Dashboard() {
   };
 
   const handleDownloadClick = async (file) => {
+    if (downloadingFiles[file.id]) {
+      alert("File is already being downloaded.");
+      return;
+    }
+
     setDownloadingFiles((prev) => ({ ...prev, [file.id]: true }));
     const success = await handleFileDownload(file.filename, file.ext);
     setDownloadingFiles((prev) => ({ ...prev, [file.id]: false }));
     if (success) {
-      setSelectedFiles((prev) => ({ ...prev, [file.id]: false }));
+      setSelectedFiles((prev) => {
+        const updatedSelectedFiles = { ...prev };
+        delete updatedSelectedFiles[file.id];
+        return updatedSelectedFiles;
+      });
     }
   };
 
   const handleDeleteClick = async (file) => {
+    if (deletingFiles[file.id]) {
+      alert(`${file.filename}.${file.ext} is already being deleted.`);
+      return;
+    }
+
     setDeletingFiles((prev) => ({ ...prev, [file.id]: true }));
     await handleFileDelete(file.filename, file.ext);
     setDeletingFiles((prev) => ({ ...prev, [file.id]: false }));
+
+    // Remove the deleted file from selectedFiles
+    setSelectedFiles((prev) => {
+      const updatedSelectedFiles = { ...prev };
+      delete updatedSelectedFiles[file.id];
+      return updatedSelectedFiles;
+    });
   };
 
-  //control row for delete
+  // Control row for delete
   const handleRowClassName = (fileId) => {
-    return deletingFiles[fileId] ? "opacity-50 pointer-events-none" : "";
+    return deletingFiles[fileId]
+      ? "bg-red-100 pointer-events-none animate-pulse"
+      : "";
   };
 
   //Get all of the API calls from hooks
@@ -144,7 +167,7 @@ export default function Dashboard() {
   };
 
   // Function to handle confirmation action in the alert dialog
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = () => {
     // Filter out selected files
     const filesToDelete = sortedFiles.filter((file) => selectedFiles[file.id]);
 
@@ -157,9 +180,8 @@ export default function Dashboard() {
 
     // Call delete function for each selected file
     for (const file of filesToDelete) {
-      await handleDeleteClick(file);
+      handleDeleteClick(file);
     }
-    s;
 
     // Create a new object with all values set to false
     const newSelectedFiles = {};
@@ -457,9 +479,7 @@ export default function Dashboard() {
                               Download
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleDeleteClick(file.filename, file.ext)
-                              }
+                              onClick={() => handleDeleteClick(file)}
                             >
                               <TrashIcon className="mr-2 h-4 w-4" />
                               Delete
