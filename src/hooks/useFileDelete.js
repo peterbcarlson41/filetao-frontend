@@ -1,12 +1,11 @@
 // hooks/useFileDelete.js
 
 import { useCallback } from "react";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 const useFileDelete = (fetchFiles) => {
   //fetch token
   const { getToken } = useAuth();
-  const token = getToken();
 
   // This hook uses useCallback to memoize the function, avoiding unnecessary re-creations
   const handleFileDelete = useCallback(
@@ -17,6 +16,8 @@ const useFileDelete = (fetchFiles) => {
       try {
         const fullFilename = `${filename}.${extension}`;
         const url = `${BASE_URL}/delete/${encodeURIComponent(fullFilename)}`;
+
+        const token = await getToken();
 
         const response = await fetch(url, {
           method: "GET",

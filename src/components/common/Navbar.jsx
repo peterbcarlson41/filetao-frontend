@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -31,7 +31,7 @@ export default function Navbar() {
               <Menu className="h-6 w-6" />
             )}
           </button>
-          <a className="sm:flex hidden items-center space-x-2" href="/">
+          <a className="md:flex hidden items-center space-x-2" href="/">
             <Tao className="h-10 w-10" />
           </a>
         </div>

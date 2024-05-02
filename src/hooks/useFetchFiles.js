@@ -1,56 +1,77 @@
-// hooks/useFetchFiles.js
-
-import { useState, useCallback } from "react";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/context/AuthContext"; // Ensure this import is correct
 
 const useFetchFiles = () => {
   const [files, setFiles] = useState([]);
   const [numberOfFiles, setNumberOfFiles] = useState(0);
   const [storageUsed, setStorageUsed] = useState(0);
   const [userCap, setUserCap] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Retrieve the base API URL from environment variables
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
   const { getToken } = useAuth();
-  const authToken = getToken();
 
   // Function to fetch files
   const fetchFiles = useCallback(async () => {
-    if (!authToken) {
-      console.error("No auth token found");
-      return;
-    }
+    setIsLoading(true);
+    setError(null);
 
-    const url = `${BASE_URL}/user_data`;
+    try {
+      const authToken = await getToken(); // Ensure token is retrieved asynchronously
+      if (!authToken) {
+        console.error("No auth token found");
+        setIsLoading(false);
+        setError("Authentication required.");
+        return;
+      }
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+      const url = `${BASE_URL}/user_data`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        throw new Error("Failed to fetch files");
+      }
+
       const data = await response.json();
-      const filesArray = Object.entries(data.file_metadata).map(
-        ([key, value]) => {
-          return { id: key, ...value };
-        }
-      );
+      const filesArray = data.file_metadata.map((file, index) => ({
+        id: index, // Assuming file object does not have an id and index is used instead
+        ...file,
+      }));
+
       setFiles(filesArray);
-
-      // Get info to display in the stats card
       setNumberOfFiles(data.stats.filecount);
-      // Convert storage to GB assuming the value is in bytes
       setStorageUsed(data.stats.storage);
-      // get user capacity
       setUserCap(data.stats.usercap);
-    } else {
-      console.error("Failed to fetch files");
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      setError(error.message || "Failed to fetch files");
+    } finally {
+      setIsLoading(false);
     }
-  }, [BASE_URL]);
+  }, [BASE_URL, getToken]);
 
-  return { files, fetchFiles, numberOfFiles, storageUsed, userCap };
+  // Trigger fetchFiles when the component using this hook is mounted
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles]);
+
+  return {
+    files,
+    fetchFiles,
+    numberOfFiles,
+    storageUsed,
+    userCap,
+    isLoading,
+    error,
+  };
 };
 
 export default useFetchFiles;

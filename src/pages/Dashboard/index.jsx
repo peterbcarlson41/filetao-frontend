@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import useFetchFiles from "@/hooks/useFetchFiles";
 import useFileUpload from "@/hooks/useFileUpload";
 import useFileDownload from "@/hooks/useFileDownload";
@@ -69,11 +69,9 @@ export default function Dashboard() {
   const fileInputRef = useRef(null);
 
   const { logout } = useAuth();
-  let navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate("/");
   };
 
   const statisticsURL = import.meta.env.VITE_STATISTICS_URL;

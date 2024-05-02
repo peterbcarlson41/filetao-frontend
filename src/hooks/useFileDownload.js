@@ -1,7 +1,7 @@
 // hooks/useFileDownload.js
 
 import { useState } from "react";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 const useFileDownload = () => {
   const [downloads, setDownloads] = useState([]);
@@ -10,9 +10,10 @@ const useFileDownload = () => {
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
   const { getToken } = useAuth();
-  const token = getToken();
 
   const handleFileDownload = async (filename, extension) => {
+    const token = await getToken();
+
     const newDownload = {
       id: filename,
       filename: filename,

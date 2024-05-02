@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@/components/auth/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { formatBytes } from "@/utils/formatBytes";
 
 const useFileUpload = (fetchFiles) => {
@@ -12,7 +12,6 @@ const useFileUpload = (fetchFiles) => {
   const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
   const { getToken } = useAuth();
-  const token = getToken();
 
   const handleFileUpload = async (selectedFiles) => {
     const fileUploadStates = selectedFiles.map((file) => ({
@@ -53,6 +52,8 @@ const useFileUpload = (fetchFiles) => {
         );
         return;
       }
+
+      const token = await getToken();
 
       fetch(`${BASE_URL}/uploadfile/`, {
         method: "POST",
