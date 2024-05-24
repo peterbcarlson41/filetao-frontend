@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
+import { Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +12,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import Navbar from "@/components/common/Navbar";
 import { ResetPassword } from "@/components/common/ResetPassword";
 import { useAuth } from "@/context/AuthContext"; // Adjust path as needed
@@ -19,11 +29,16 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(true);
   const { login, loginWithGoogle } = useAuth(); // Get login methods from context
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validateEmail(email)) {
+      navigate("/update-info");
+      return;
+    }
     try {
       await login(email, password); // Use context login method
     } catch (error) {
@@ -38,6 +53,11 @@ export default function LoginForm() {
     } catch (error) {
       setError("Google login failed. " + error.message);
     }
+  };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
   };
 
   return (
@@ -57,7 +77,7 @@ export default function LoginForm() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="username"
                   placeholder="m@example.com"
                   required
                   value={email}
@@ -103,6 +123,24 @@ export default function LoginForm() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Heads up!</AlertDialogTitle>
+            <AlertDialogDescription>
+              If you have previously registered without an email, please enter
+              your original username. If this is your first time here, please
+              navigate to the register form.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsAlertDialogOpen(false)}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

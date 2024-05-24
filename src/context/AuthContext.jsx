@@ -6,6 +6,7 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -61,8 +62,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       // Save new user to backend right after Google registration
-      await saveUserToBackend(result.user);
-      navigate("/dashboard");
+      const backendSaveSuccess = await saveUserToBackend(result.user);
+      if (backendSaveSuccess) {
+        navigate("/dashboard");
+      }
       return result.user;
     } catch (error) {
       console.error("Google sign-up failed:", error);
@@ -71,7 +74,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const saveUserToBackend = async (user) => {
-    console.log("Attempting to save user to backend", user.uid);
     try {
       const response = await fetch(`${BASE_URL}/register/`, {
         method: "POST",
@@ -80,15 +82,17 @@ export const AuthProvider = ({ children }) => {
           Authorization: `Bearer ${await user.getIdToken()}`,
         },
         body: JSON.stringify({
-          firebase_uid: user.uid,
+          username: user.uid,
           email: user.email,
         }),
       });
       const data = await response.json();
       console.log("User registered in backend:", data);
+      return true;
     } catch (error) {
       console.error("Failed to register user in backend:", error);
       alert("Failed to register user: " + error);
+      return false;
     }
   };
 
@@ -118,12 +122,39 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // Save new user to backend right after Google registration
-      await saveUserToBackend(result.user);
-      navigate("/dashboard"); // Navigate to dashboard after Google login
+      const user = result.user;
+
+      // Just in case the user accidentally signs in with Google
+      const backendSaveSuccess = await saveUserToBackend(user);
+      if (backendSaveSuccess) {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Google sign-in failed:", error);
       alert("Google sign-in failed:", error);
+    }
+  };
+
+  //Function to migrate old users to new firebase system.
+  const migrateUser = async (migrationInfo) => {
+    try {
+      const response = await fetch(`${BASE_URL}/migrate_user/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(migrationInfo),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("User migrated successfully:", data);
+      return data; // Return migration result
+    } catch (error) {
+      console.error("Failed to migrate user:", error);
+      alert("Failed to migrate user: " + error);
+      return null; // Return null if migration fails
     }
   };
 
@@ -167,6 +198,7 @@ export const AuthProvider = ({ children }) => {
         login,
         loginWithGoogle,
         logout,
+        migrateUser,
         getToken,
         resetPassword,
       }}

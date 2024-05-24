@@ -20,10 +20,13 @@ const VerifyEmailPage = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      currentUser.reload().then(() => {
+      currentUser.reload().then(async () => {
         if (currentUser.emailVerified) {
           clearInterval(interval);
-          saveUserToBackend(currentUser).then(() => navigate("/dashboard"));
+          const backendSaveSuccess = await saveUserToBackend(currentUser);
+          if (backendSaveSuccess) {
+            navigate("/dashboard");
+          }
         }
       });
     }, 3000); // Check every 3 seconds

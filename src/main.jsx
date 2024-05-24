@@ -12,6 +12,7 @@ import MyFiles from "./pages/Dashboard/index";
 import RootLayout from "./RootLayout";
 import VerifyEmail from "./pages/EmailVerification/index.jsx";
 import { Analytics } from "@vercel/analytics/react";
+import UpdateInfoForm from "./pages/DataMigration/index.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/" element={<App />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="update-info" element={<UpdateInfoForm />} />
             <Route path="verify-email" element={<VerifyEmail />} />
             <Route element={<ProtectedRoute />}>
               <Route path="dashboard" element={<MyFiles />} />
