@@ -6,11 +6,11 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  deleteUser as firebaseDeleteUser,
 } from "firebase/auth";
 
 import app from "../../firebaseConfig"; // Adjust path as needed
@@ -188,6 +188,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteUser = async () => {
+    if (!currentUser) return;
+    try {
+      await firebaseDeleteUser(currentUser);
+      alert("Account deleted successfully.");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("Failed to delete account. Please try again.");
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -202,6 +214,7 @@ export const AuthProvider = ({ children }) => {
         migrateUser,
         getToken,
         resetPassword,
+        deleteUser,
       }}
     >
       {!isLoading && children}

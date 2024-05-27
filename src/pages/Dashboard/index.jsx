@@ -69,9 +69,14 @@ export default function Dashboard() {
   const fileInputRef = useRef(null);
 
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleSettings = () => {
+    navigate("/account");
   };
 
   const statisticsURL = import.meta.env.VITE_STATISTICS_URL;
@@ -317,6 +322,9 @@ export default function Dashboard() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSettings}>
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>
