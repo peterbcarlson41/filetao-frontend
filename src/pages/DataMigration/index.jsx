@@ -19,7 +19,7 @@ export default function UpdateInfoForm() {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState("");
-  const { updateUserInfo } = useAuth(); // Assuming you have an updateUserInfo method in your context
+  const { migrateUser } = useAuth(); // Assuming you have an updateUserInfo method in your context
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -31,11 +31,17 @@ export default function UpdateInfoForm() {
       new_password: newPassword,
     };
     try {
-      await migrateUser(migrationInfo);
-      navigate("/dashboard"); // Redirect to home or login after successful update
+      const result = await migrateUser(migrationInfo);
+      if (result) {
+        navigate("/dashboard"); // Redirect to home or login after successful update
+      }
     } catch (error) {
       console.error(error);
       setError("Failed to update information. Please check your details.");
+      setUsername("");
+      setOriginalPassword("");
+      setEmail("");
+      setNewPassword("");
     }
   };
 

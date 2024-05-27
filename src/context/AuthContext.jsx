@@ -146,15 +146,16 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(migrationInfo),
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to migrate user");
       }
       const data = await response.json();
       console.log("User migrated successfully:", data);
       return data; // Return migration result
     } catch (error) {
       console.error("Failed to migrate user:", error);
-      alert("Failed to migrate user: " + error);
-      return null; // Return null if migration fails
+      const errorMessage = error.response?.data?.detail || error.message;
+      alert("Failed to migrate user: " + errorMessage);
     }
   };
 
