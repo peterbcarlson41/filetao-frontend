@@ -2,8 +2,12 @@ import { CardHeader, CardContent, Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import dashboardImage from "@/assets/Dashboard.png";
+import statisticsDashboardImage from "@/assets/StatisticsDashboard.png";
+import { useNavigate } from "react-router-dom";
 
-export default function Component() {
+export default function LandingPage() {
+  const statisticsURL = import.meta.env.VITE_STATISTICS_URL;
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1 pt-10">
@@ -22,7 +26,9 @@ export default function Component() {
                   </p>
                 </div>
                 <div>
-                  <Button>Get Started</Button>
+                  <Button onClick={() => navigate("/register")}>
+                    Get Started
+                  </Button>
                 </div>
               </div>
               <img
@@ -48,14 +54,18 @@ export default function Component() {
                   </p>
                 </div>
                 <div>
-                  <Button>View Live Dashboard</Button>
+                  <Button
+                    onClick={() => (window.location.href = statisticsURL)}
+                  >
+                    View Live Dashboard
+                  </Button>
                 </div>
               </div>
               <img
                 alt="Hero"
                 className="mx-auto aspect-video rounded-xl object-cover object-center sm:w-full lg:order-last"
                 height="310"
-                src={dashboardImage}
+                src={statisticsDashboardImage}
                 width="550"
               />
             </div>
