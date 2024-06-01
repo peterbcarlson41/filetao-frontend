@@ -19,10 +19,10 @@ export default function LandingPage() {
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     Secure and Decentralized File Storage
                   </h1>
-                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                    FileTao is a web3 file storage service that offers
-                    decentralized, encrypted, and cross-chain storage solutions
-                    for your digital assets.
+                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400 mx-auto">
+                    FileTao is a file storage service that offers efficient,
+                    robust, secure, and highly available decetralized storage
+                    system on the Bittensor network.
                   </p>
                 </div>
                 <div>
@@ -49,7 +49,7 @@ export default function LandingPage() {
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     View Miner Information
                   </h1>
-                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400 mx-auto">
                     View live statistics for miners on the network.
                   </p>
                 </div>

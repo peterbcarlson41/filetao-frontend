@@ -81,7 +81,7 @@ export default function MyAccount() {
                       className="w-full"
                       onClick={handleDeleteAccount}
                     >
-                      Delete Account
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -100,7 +100,7 @@ export default function MyAccount() {
                       className="w-full"
                       onClick={handleResetPassword}
                     >
-                      Reset Password
+                      Reset
                     </Button>
                   </div>
                 </div>
