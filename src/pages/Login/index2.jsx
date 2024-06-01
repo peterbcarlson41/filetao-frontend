@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
-import { Terminal } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,10 +35,6 @@ export default function LoginForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validateEmail(email)) {
-      navigate("/update-info");
-      return;
-    }
     try {
       await login(email, password); // Use context login method
     } catch (error) {
@@ -55,15 +51,10 @@ export default function LoginForm() {
     }
   };
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center h-screen px-5">
+      <div className="flex flex-col justify-center items-center h-screen px-5">
         <Card className="mx-auto max-w-sm text-left">
           <CardHeader>
             <CardTitle className="text-2xl">Login</CardTitle>
@@ -126,18 +117,40 @@ export default function LoginForm() {
 
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Heads up!</AlertDialogTitle>
-            <AlertDialogDescription>
-              If you have previously registered without an email, please enter
-              your original username. If this is your first time here, please
-              navigate to the register form.
-            </AlertDialogDescription>
+          <button
+            className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
+            onClick={() => setIsAlertDialogOpen(false)}
+          >
+            <X />
+          </button>
+          <AlertDialogHeader className="flex flex-row justify-between items-center">
+            <AlertDialogTitle>Account Update Required</AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setIsAlertDialogOpen(false)}>
-              Close
-            </AlertDialogAction>
+          <AlertDialogDescription>
+            If you have previously registered without an email, please enter
+            your original username and update your information. If this is your
+            first time here, please navigate to the register form.
+          </AlertDialogDescription>
+          <AlertDialogFooter className="sm:gap-y-0 gap-y-2">
+            <Button
+              onClick={() => {
+                setIsAlertDialogOpen(false);
+                navigate("/update-info");
+              }}
+              className="w-full"
+            >
+              Update User Info
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAlertDialogOpen(false);
+                navigate("/register");
+              }}
+              className="w-full"
+              variant="outline"
+            >
+              Register
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
