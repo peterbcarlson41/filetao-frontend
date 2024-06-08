@@ -11,69 +11,69 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { sendEmailVerification, deleteUser } from "firebase/auth";
-import { useToast } from "@/components/ui/use-toast"; // Import useToast and ToastAction
+import { useToast } from "@/components/ui/use-toast";
 
 const VerifyEmailPage = () => {
   const { logout } = useAuth();
   const { currentUser, saveUserToBackend } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast(); // Destructure toast from useToast
+  const { toast } = useToast();
   const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true); // Initially disabled
-  const [countdown, setCountdown] = useState(45); // Countdown timer
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [countdown, setCountdown] = useState(45);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const checkInterval = setInterval(() => {
       currentUser.reload().then(async () => {
         if (currentUser.emailVerified) {
-          clearInterval(interval);
+          clearInterval(checkInterval);
+          clearTimeout(deleteTimeout);
           const backendSaveSuccess = await saveUserToBackend(currentUser);
           if (backendSaveSuccess) {
             navigate("/dashboard");
           }
         }
       });
-    }, 3000); // Check every 3 seconds
+    }, 5000); // Check every 5 seconds
 
-    // Enable the resend email button after 30 seconds
-    const buttonTimeout = setTimeout(() => {
-      setIsButtonDisabled(false);
-      setCountdown(45);
-    }, 30000); // 30 seconds
+    const deleteTimeout = setTimeout(async () => {
+      clearInterval(checkInterval);
+      await handleReturnToLogin();
+    }, 60000); // 1 minute
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(buttonTimeout);
+      clearInterval(checkInterval);
+      clearTimeout(deleteTimeout);
     };
   }, [currentUser, navigate, saveUserToBackend]);
 
   useEffect(() => {
     if (isButtonDisabled) {
       const countdownInterval = setInterval(() => {
-        setCountdown((prevCountdown) => prevCountdown - 1);
+        setCountdown((prevCountdown) => {
+          if (prevCountdown === 1) {
+            clearInterval(countdownInterval);
+            setIsButtonDisabled(false);
+          }
+          return prevCountdown - 1;
+        });
       }, 1000);
-
-      if (countdown === 0) {
-        setIsButtonDisabled(false);
-        clearInterval(countdownInterval);
-      }
 
       return () => clearInterval(countdownInterval);
     }
-  }, [isButtonDisabled, countdown]);
+  }, [isButtonDisabled]);
 
   const handleReturnToLogin = async () => {
     try {
       await deleteUser(currentUser);
       logout();
-      navigate("/login");
+      navigate("/register");
     } catch (error) {
       console.error("Error deleting user:", error);
       toast({
         variant: "destructive",
         title: "Failed to delete user.",
         description: "Please try again.",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     }
   };
@@ -88,7 +88,6 @@ const VerifyEmailPage = () => {
         description: "Please check your inbox.",
       });
 
-      // Disable the button for 45 seconds
       setIsButtonDisabled(true);
       setCountdown(45);
     } catch (error) {
@@ -97,7 +96,6 @@ const VerifyEmailPage = () => {
         variant: "destructive",
         title: "Failed to send verification email.",
         description: "Please try again.",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     }
     setIsSendingEmail(false);
@@ -119,7 +117,7 @@ const VerifyEmailPage = () => {
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-2">
             <Button variant="outline" onClick={handleReturnToLogin}>
-              Return to Login
+              Return to Register
             </Button>
             <Button
               onClick={handleSendVerificationEmail}

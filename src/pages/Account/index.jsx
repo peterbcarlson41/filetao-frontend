@@ -22,8 +22,6 @@ import {
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/context/AuthContext"; // Adjust the path as needed
 import { useToast } from "@/components/ui/use-toast";
-import { Navigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
 
 export default function MyAccount() {
   const { currentUser, resetPassword, deleteUser, logout } = useAuth();

@@ -13,15 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 import Navbar from "@/components/common/Navbar";
 import { ResetPassword } from "@/components/common/ResetPassword";
 import { useAuth } from "@/context/AuthContext"; // Adjust path as needed
@@ -29,16 +20,23 @@ import { useAuth } from "@/context/AuthContext"; // Adjust path as needed
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(true);
   const { login, loginWithGoogle } = useAuth(); // Get login methods from context
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validateEmail(email)) {
+      navigate("/update-info");
+      return;
+    }
     try {
-      await login(email, password); // Removed toast from here
+      await login(email, password);
     } catch (error) {
       console.error(error);
       toast({
@@ -51,7 +49,7 @@ export default function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      await loginWithGoogle(); // Use context Google login method
+      await loginWithGoogle();
     } catch (error) {
       toast({
         variant: "destructive",
@@ -123,46 +121,6 @@ export default function LoginForm() {
           </CardContent>
         </Card>
       </div>
-
-      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent>
-          <button
-            className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
-            onClick={() => setIsAlertDialogOpen(false)}
-          >
-            <X />
-          </button>
-          <AlertDialogHeader className="flex flex-row justify-between items-center">
-            <AlertDialogTitle>Account Update Required</AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogDescription>
-            If you have previously registered without an email, please enter
-            your original username and update your information. If this is your
-            first time here, please navigate to the register form.
-          </AlertDialogDescription>
-          <AlertDialogFooter className="sm:gap-y-0 gap-y-2">
-            <Button
-              onClick={() => {
-                setIsAlertDialogOpen(false);
-                navigate("/update-info");
-              }}
-              className="w-full"
-            >
-              Update User Info
-            </Button>
-            <Button
-              onClick={() => {
-                setIsAlertDialogOpen(false);
-                navigate("/register");
-              }}
-              className="w-full"
-              variant="outline"
-            >
-              Register
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
