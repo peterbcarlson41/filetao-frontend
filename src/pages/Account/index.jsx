@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import {
   Card,
@@ -16,6 +26,7 @@ export default function MyAccount() {
   const { currentUser, resetPassword, deleteUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State for the dialog
 
   useEffect(() => {
     if (currentUser) {
@@ -38,6 +49,11 @@ export default function MyAccount() {
   };
 
   const handleDeleteAccount = async () => {
+    setIsDialogOpen(true); // Open the dialog for confirmation
+  };
+
+  const confirmDeleteAccount = async () => {
+    setIsDialogOpen(false); // Close the dialog
     try {
       await deleteUser();
     } catch (error) {
@@ -76,13 +92,42 @@ export default function MyAccount() {
                     </CardDescription>
                   </div>
                   <div className="min-w-[120px]">
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={handleDeleteAccount}
+                    <AlertDialog
+                      isOpen={isDialogOpen}
+                      onDismiss={() => setIsDialogOpen(false)}
                     >
-                      Delete
-                    </Button>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={handleDeleteAccount}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. Are you sure you want
+                            to delete your account?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={() => setIsDialogOpen(false)}
+                          >
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={confirmDeleteAccount}
+                            variant="destructive"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">

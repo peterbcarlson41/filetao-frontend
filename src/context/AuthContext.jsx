@@ -10,7 +10,6 @@ import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   sendEmailVerification,
-  deleteUser as firebaseDeleteUser,
 } from "firebase/auth";
 
 import app from "../../firebaseConfig"; // Adjust path as needed
@@ -54,7 +53,6 @@ export const AuthProvider = ({ children }) => {
       return userCredential.user;
     } catch (error) {
       console.error("Registration failed:", error);
-      alert("Registration failed:", error);
     }
   };
 
@@ -69,7 +67,6 @@ export const AuthProvider = ({ children }) => {
       return result.user;
     } catch (error) {
       console.error("Google sign-up failed:", error);
-      alert("Google sign-up failed:", error);
     }
   };
 
@@ -190,10 +187,30 @@ export const AuthProvider = ({ children }) => {
 
   const deleteUser = async () => {
     if (!currentUser) return;
+
     try {
-      await firebaseDeleteUser(currentUser);
-      alert("Account deleted successfully.");
-      navigate("/login");
+      // Get the ID token for the current user
+      const token = await currentUser.getIdToken();
+
+      // Delete user from the backend
+      const response = await fetch(`${BASE_URL}/users/${currentUser.uid}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.detail || "Failed to delete user from backend"
+        );
+      }
+
+      logout();
+      setCurrentUser(null);
+      navigate("/login"); // Navigate to login after deletion
     } catch (error) {
       console.error("Error deleting account:", error);
       alert("Failed to delete account. Please try again.");
