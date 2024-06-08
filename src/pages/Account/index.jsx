@@ -21,12 +21,16 @@ import {
 } from "@/components/ui/card";
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/context/AuthContext"; // Adjust the path as needed
+import { useToast } from "@/components/ui/use-toast";
+import { Navigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 export default function MyAccount() {
-  const { currentUser, resetPassword, deleteUser } = useAuth();
+  const { currentUser, resetPassword, deleteUser, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State for the dialog
+  const { toast } = useToast();
 
   useEffect(() => {
     if (currentUser) {
@@ -41,10 +45,16 @@ export default function MyAccount() {
     if (!userData || !userData.email) return;
     try {
       await resetPassword(userData.email);
-      alert("Password reset email sent successfully.");
+      toast({
+        description: "Password reset email sent successfully.",
+      });
+      logout();
     } catch (error) {
       console.error("Error resetting password:", error);
-      alert("Failed to reset password. Please try again.");
+      toast({
+        description: "Failed to reset password. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -56,9 +66,15 @@ export default function MyAccount() {
     setIsDialogOpen(false); // Close the dialog
     try {
       await deleteUser();
+      toast({
+        description: "Account deleted successfully.",
+      });
     } catch (error) {
       console.error("Error deleting account:", error);
-      alert("Failed to delete account. Please try again.");
+      toast({
+        description: "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

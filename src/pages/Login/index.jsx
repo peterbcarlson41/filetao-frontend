@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
@@ -32,14 +33,19 @@ export default function LoginForm() {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(true);
   const { login, loginWithGoogle } = useAuth(); // Get login methods from context
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await login(email, password); // Use context login method
+      await login(email, password); // Removed toast from here
     } catch (error) {
       console.error(error);
-      setError("Failed to log in. Check your email and password.");
+      toast({
+        variant: "destructive",
+        title: "Login Error",
+        description: "Failed to log in. Check your email and password.",
+      });
     }
   };
 
@@ -47,7 +53,11 @@ export default function LoginForm() {
     try {
       await loginWithGoogle(); // Use context Google login method
     } catch (error) {
-      setError("Google login failed. " + error.message);
+      toast({
+        variant: "destructive",
+        title: "Google Login Error",
+        description: "Failed to login with Google.",
+      });
     }
   };
 
@@ -88,7 +98,6 @@ export default function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-red-500 text-center">{error}</p>}
               <Button type="submit" className="w-full">
                 Login
               </Button>

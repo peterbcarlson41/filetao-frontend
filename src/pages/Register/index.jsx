@@ -23,15 +23,27 @@ export default function SignUpForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const handleErrorMessage = (message) => {
+    // Remove "Firebase:"
+    let cleanedMessage = message.replace("Firebase:", "").trim();
+    // Remove content within parentheses
+    cleanedMessage = cleanedMessage.replace(/\(.*\)/, "").trim();
+    if (cleanedMessage.endsWith(" .")) {
+      cleanedMessage = cleanedMessage.slice(0, -2) + ".";
+    }
+    return cleanedMessage;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       await register(email, password); // Use register method from AuthContext
     } catch (error) {
+      const cleanedMessage = handleErrorMessage(error.message);
       console.error("Registration failed:", error);
-      setError("Failed to register. Check your email and password.");
+      setError("Failed to register. " + cleanedMessage);
       toast({
-        description: "Failed to register. Check your email and password.",
+        description: "Failed to register. " + cleanedMessage,
         variant: "destructive",
       });
     }
@@ -41,9 +53,11 @@ export default function SignUpForm() {
     try {
       await registerWithGoogle(); // Use registerWithGoogle method from AuthContext
     } catch (error) {
-      setError("Google sign-up failed. " + error.message);
+      const cleanedMessage = handleErrorMessage(error.message);
+      console.error("Google sign-up failed:", error);
+      setError("Google sign-up failed. " + cleanedMessage);
       toast({
-        description: "Google sign-up failed. " + error.message,
+        description: "Google sign-up failed. " + cleanedMessage,
         variant: "destructive",
       });
     }
@@ -83,7 +97,6 @@ export default function SignUpForm() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-red-500 text-center">{error}</p>}
               <Button type="submit" className="w-full">
                 Sign Up
               </Button>

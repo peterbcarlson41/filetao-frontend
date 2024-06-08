@@ -87,7 +87,11 @@ export default function Dashboard() {
 
   const handleDownloadClick = async (file) => {
     if (downloadingFiles[file.id]) {
-      alert("File is already being downloaded.");
+      toast({
+        variant: "destructive",
+        title: "Failed to download file",
+        description: "file is already being downloaded",
+      });
       return;
     }
 
@@ -105,7 +109,11 @@ export default function Dashboard() {
 
   const handleDeleteClick = async (file) => {
     if (deletingFiles[file.id]) {
-      alert(`${file.filename}.${file.ext} is already being deleted.`);
+      toast({
+        variant: "destructive",
+        title: `Failed to delete ${file.filename}.${file.ext}`,
+        description: response.detail || error,
+      });
       return;
     }
 
@@ -149,7 +157,11 @@ export default function Dashboard() {
 
   const handleFileChange = (event) => {
     if (!event.target.files || event.target.files.length === 0) {
-      alert("Please select files to upload.");
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: "please select files to upload",
+      });
       return;
     }
     setShowPopup(true);

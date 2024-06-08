@@ -30,11 +30,19 @@ const useFileDelete = (fetchFiles) => {
         if (response.ok) {
           fetchFiles();
         } else {
-          alert("Failed to delete the file.");
+          toast({
+            variant: "destructive",
+            title: "Failed to delete file",
+            description: "There was a problem with your request.",
+          });
         }
       } catch (error) {
         console.error("Error deleting file:", error);
-        alert("An error occurred while deleting the file.");
+        toast({
+          variant: "destructive",
+          title: "Failed to delete file",
+          description: response.detail || error,
+        });
       }
     },
     [fetchFiles]

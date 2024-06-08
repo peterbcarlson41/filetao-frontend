@@ -47,9 +47,13 @@ const useFileUpload = (fetchFiles) => {
               : trans
           )
         );
-        alert(
-          `Maximum file size of ${formatBytes(maxFileSize).string} exceeded.`
-        );
+        toast({
+          variant: "destructive",
+          title: "Maxiumum file size exceeded",
+          description: `Maximum file size of ${
+            formatBytes(maxFileSize).string
+          } exceeded.`,
+        });
         return;
       }
 
@@ -80,7 +84,11 @@ const useFileUpload = (fetchFiles) => {
                     : trans
                 )
               );
-              alert(data.detail);
+              toast({
+                variant: "destructive",
+                title: "Failed to upload file",
+                description: "There was a problem with your request.",
+              });
             });
           }
         })

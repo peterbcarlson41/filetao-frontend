@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       navigate("/verify-email");
       return userCredential.user;
     } catch (error) {
-      console.error("Registration failed:", error);
+      throw error;
     }
   };
 
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
       }
       return result.user;
     } catch (error) {
-      console.error("Google sign-up failed:", error);
+      throw error;
     }
   };
 
@@ -84,11 +84,9 @@ export const AuthProvider = ({ children }) => {
         }),
       });
       const data = await response.json();
-      console.log("User registered in backend:", data);
       return true;
     } catch (error) {
       console.error("Failed to register user in backend:", error);
-      alert("Failed to register user: " + error);
       return false;
     }
   };
@@ -105,14 +103,15 @@ export const AuthProvider = ({ children }) => {
       if (user.emailVerified) {
         navigate("/dashboard");
       } else {
-        alert("Please verify your email before logging in.");
+        toast({
+          variant: "destructive",
+          title: "Email not Verified.",
+          description: "Please verify your email before logging in.",
+        });
         await auth.signOut();
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      alert(
-        "Login failed. Please check your email and password and try again."
-      );
+      throw error;
     }
   };
 
@@ -127,8 +126,7 @@ export const AuthProvider = ({ children }) => {
         navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Google sign-in failed:", error);
-      alert("Google sign-in failed:", error);
+      throw error;
     }
   };
 
@@ -150,9 +148,7 @@ export const AuthProvider = ({ children }) => {
       console.log("User migrated successfully:", data);
       return data; // Return migration result
     } catch (error) {
-      console.error("Failed to migrate user:", error);
-      const errorMessage = error.response?.data?.detail || error.message;
-      alert("Failed to migrate user: " + errorMessage);
+      throw error;
     }
   };
 
@@ -178,10 +174,8 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email) => {
     try {
       await sendPasswordResetEmail(auth, email);
-      console.log("Password reset email sent successfully.");
     } catch (error) {
-      console.error("Failed to send password reset email:", error);
-      throw error; // Rethrow the error so it can be caught and handled by the caller component.
+      throw error;
     }
   };
 
@@ -202,10 +196,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.detail || "Failed to delete user from backend"
-        );
+        throw error;
       }
 
       logout();
@@ -213,7 +204,7 @@ export const AuthProvider = ({ children }) => {
       navigate("/login"); // Navigate to login after deletion
     } catch (error) {
       console.error("Error deleting account:", error);
-      alert("Failed to delete account. Please try again.");
+      throw error;
     }
   };
 
