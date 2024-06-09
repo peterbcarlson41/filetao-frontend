@@ -12,15 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/context/AuthContext"; // Adjust path as needed
+import { useToast } from "@/components/ui/use-toast"; // Import useToast
 
 export default function UpdateInfoForm() {
   const [username, setUsername] = useState("");
   const [originalPassword, setOriginalPassword] = useState("");
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [error, setError] = useState("");
   const { migrateUser } = useAuth(); // Assuming you have an updateUserInfo method in your context
   const navigate = useNavigate();
+  const { toast } = useToast(); // Destructure toast
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,7 +38,11 @@ export default function UpdateInfoForm() {
       }
     } catch (error) {
       console.error(error);
-      setError("Failed to update information. Please check your details.");
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: "Failed to update information. Please check your details.",
+      });
       setUsername("");
       setOriginalPassword("");
       setEmail("");
@@ -100,7 +105,6 @@ export default function UpdateInfoForm() {
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-red-500 text-center">{error}</p>}
               <Button type="submit" className="w-full">
                 Update Information
               </Button>
